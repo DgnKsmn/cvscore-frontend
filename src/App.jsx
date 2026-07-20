@@ -4,7 +4,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-const GEMINI_API_KEY: string = process.env.REACT_APP_GEMINI_API_KEY;
+const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
 function App() {
     // Sayfa yönetimi: 'home', 'job-match', 'ats-check'
@@ -74,7 +74,6 @@ function App() {
     // --- Gün 5: Tarayıcı Tabanlı PDF Metin Ayıklama Motoru ---
     const extractTextFromPdf = async (file) => {
         if (!file || file.type !== "application/pdf") {
-            console.log("Sistem Log: Yüklenen dosya PDF formatında değil.");
             return "PDF formatında bir dosya yüklenmediği için metin okunamadı.";
         }
         try {
@@ -89,7 +88,6 @@ function App() {
                 fullText += pageText + "\n";
             }
 
-            console.log("Sistem Log: Yüklenen CV metni başarıyla ayıklandı! 📄");
             return fullText;
         } catch (error) {
             console.error("Sistem Log: PDF dosyası okunurken bir hata oluştu:", error);
@@ -116,18 +114,17 @@ function App() {
         ${cvText}
         `;
 
-        try {
-            console.log("Sistem Log: Yapay zekaya istek atılıyor... 🧠");
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-            method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: { response_mime_type: "application/json" }
-                })
-            });
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { response_mime_type: "application/json" }
+                    })
+                });
 
             const data = await response.json();
 

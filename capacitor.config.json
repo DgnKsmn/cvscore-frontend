@@ -1,0 +1,5 @@
+{
+  "appId": "com.cvscore.app",
+  "appName": "cvscore",
+  "webDir": "dist"
+}
