@@ -4,7 +4,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-const GEMINI_API_KEY = "API_KEY_BURAYA_GELECEK";
+const GEMINI_API_KEY: string = process.env.REACT_APP_GEMINI_API_KEY;
 
 function App() {
     // Sayfa yönetimi: 'home', 'job-match', 'ats-check'
