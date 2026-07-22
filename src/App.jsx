@@ -4,8 +4,6 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-const GEMINI_API_KEY = import.meta.env.VITE_API_KEY;
-
 function App() {
     // Sayfa yönetimi: 'home', 'job-match', 'ats-check'
     const [activePage, setActivePage] = useState('home');
@@ -71,7 +69,7 @@ function App() {
         }
     };
 
-    // --- Gün 5: Tarayıcı Tabanlı PDF Metin Ayıklama Motoru ---
+    // --- Tarayıcı Tabanlı PDF Metin Ayıklama Motoru ---
     const extractTextFromPdf = async (file) => {
         if (!file || file.type !== "application/pdf") {
             return "PDF formatında bir dosya yüklenmediği için metin okunamadı.";
@@ -95,7 +93,7 @@ function App() {
         }
     };
 
-    // --- 🚀 GÜN 6: YAPAY ZEKA (GEMINI) ENTEGRASYONU ---
+    // --- YAPAY ZEKA ENTEGRASYONU (GÜVENLİ NETLIFY FONKSİYONU ÜZERİNDEN) ---
     const analyzeWithGemini = async (cvText, jobContext) => {
         const prompt = `Sen CVSCORE projesi için çalışan profesyonel bir İK ve ATS (Aday Takip Sistemi) uzmanısın.
         Aşağıda verilen CV metnini ve iş tanımını (veya aranan nitelikleri) acımasızca ve dürüstçe karşılaştır.
@@ -114,28 +112,21 @@ function App() {
         ${cvText}
         `;
 
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { response_mime_type: "application/json" }
-                    })
-                });
+        try {
+            const response = await fetch('/.netlify/functions/analyze-cv', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ prompt })
+            });
 
-            const data = await response.json();
+            const resultObj = await response.json();
 
-            if (data.error) {
-                console.error("API Hatası:", data.error.message);
+            if (resultObj.error) {
+                console.error("API Hatası:", resultObj.error);
                 return null;
             }
-
-            // Gelen JSON string verisini gerçek Javascript objesine çeviriyoruz
-            const jsonString = data.candidates[0].content.parts[0].text;
-            const resultObj = JSON.parse(jsonString);
 
             console.log("Sistem Log: Yapay zeka analizi başarıyla tamamlandı! ✅", resultObj);
             return resultObj;
@@ -182,7 +173,7 @@ function App() {
         setShowResults(false);
     };
 
-    // --- 🚀 GÜN 6: GÜNCELLENMİŞ GERÇEK YAPAY ZEKA TETİKLEYİCİSİ ---
+    // --- YAPAY ZEKA TETİKLEYİCİSİ ---
     const handleCalculateMatch = async () => {
         if (!jobLink && !jobDescription) {
             alert("Lütfen bir iş ilanı linki girin veya iş tanımı metnini yapıştırın!");
@@ -207,7 +198,7 @@ function App() {
         // 2. İş Tanımı veya Linki bağlama ekle
         const jobContext = jobDescription ? jobDescription : `İlan Linki: ${jobLink}`;
 
-        // 3. Gerçek Yapay Zekayı Çağır (Gemini API)
+        // 3. Güvenli Netlify Fonksiyonu Üzerinden Yapay Zekayı Çağır
         const aiResult = await analyzeWithGemini(extractedCvText, jobContext);
 
         if (aiResult) {
@@ -218,7 +209,7 @@ function App() {
                 improvements: aiResult.improvements
             });
 
-            // 5. Veritabanına kaydet (Full-stack vizyonu devam ediyor)
+            // 5. Veritabanına kaydet
             sonuclariVeritabaninaKaydet(
                 selectedFile.name,
                 jobLink || "Metin Girişi",
@@ -227,8 +218,7 @@ function App() {
                 aiResult.missingSkills.join(" | ")
             );
         } else {
-            alert("Yapay zeka analizi sırasında bir hata oluştu. API anahtarınızı kontrol edin!");
-            // Hata durumunda boş ekran kalmaması için yedek değerler
+            alert("Yapay zeka analizi sırasında bir hata oluştu. Lütfen konsolu kontrol edin!");
             setAnalysisResult({
                 score: 0,
                 missingSkills: ["AI motoruna ulaşılamadı. Lütfen konsolu kontrol edin."],
@@ -240,7 +230,7 @@ function App() {
         setShowResults(true);
     };
 
-    // 2. Ekran: Genel ATS Puanı Analiz Tetikleyicisi (Şimdilik dürüst hash motoruyla çalışıyor)
+    // 2. Ekran: Genel ATS Puanı Analiz Tetikleyicisi
     const handleAtsCheck = async () => {
         if (!selectedFile) {
             alert("Lütfen ATS analizi için bir CV dosyası yükleyin!");
@@ -314,28 +304,22 @@ function App() {
     const radius = 54;
     const circumference = 2 * Math.PI * radius;
 
-    // 1. Tarayıcının adres çubuğunu ve geçmişini aktif sayfaya göre güncelle
+    // Tarayıcı geçmişi ve adres çubuğu yönetimi
     useEffect(() => {
         if (activePage !== 'home') {
-            // Ana sayfada değilsek, adres çubuğuna sahte bir parametre ekleyip geçmişe yaz
             window.history.pushState({ page: activePage }, "", `?sayfa=${activePage}`);
         } else {
-            // Ana menüye dönüldüğünde URL'yi temizle
             window.history.replaceState({ page: 'home' }, "", "/");
         }
     }, [activePage]);
 
-    // 2. Tarayıcının sol üstündeki 'Geri' tuşuna basıldığını algıla
     useEffect(() => {
         const handleBackButton = (event) => {
-            // Geri tuşuna basıldığında projeden çıkmak yerine ana menüye dön
             setActivePage('home');
         };
 
-        // 'popstate' olayı, tarayıcının ileri/geri tuşlarını temsil eder
         window.addEventListener('popstate', handleBackButton);
 
-        // Temizlik (Clean-up) işlemi
         return () => {
             window.removeEventListener('popstate', handleBackButton);
         };
@@ -365,7 +349,6 @@ function App() {
 
             {/* ANA İÇERİK */}
             <main className="flex-grow flex items-center justify-center p-6">
-                {/* 1. ANA EKRAN - KARŞILAMA EKRANI */}
                 {activePage === 'home' && (
                     <div className="max-w-3xl w-full text-center space-y-8">
                         <div className="space-y-4">
@@ -378,7 +361,6 @@ function App() {
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-6 pt-4">
-                            {/* İş Uyumu Butonu */}
                             <button
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
                                 className="group relative bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] flex flex-col justify-between min-h-[220px]"
@@ -390,7 +372,6 @@ function App() {
                                 </div>
                             </button>
 
-                            {/*ATS SKORUNU ÖĞREN Butonu */}
                             <button
                                 onClick={() => { setActivePage('ats-check'); handleReset(); }}
                                 className="group relative bg-slate-900 border border-slate-800 hover:border-teal-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(20,184,166,0.1)] flex flex-col justify-between min-h-[220px]"
@@ -405,10 +386,8 @@ function App() {
                     </div>
                 )}
 
-                {/* 2. EKRAN: İŞ UYUMU HESAPLAMA EKRANI */}
                 {activePage === 'job-match' && (
                     <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-stretch">
-                        {/* SOL PANEL */}
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
                             <div className="space-y-6">
                                 <div className="border-b border-slate-800 pb-4">
@@ -475,7 +454,6 @@ function App() {
                             </div>
                         </div>
 
-                        {/* SAĞ PANEL */}
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px]">
                             {!showResults ? (
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
@@ -500,7 +478,6 @@ function App() {
                                         <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">AI Active</span>
                                     </div>
 
-                                    {/* Dairesel Grafik */}
                                     <div className="flex flex-col items-center justify-center py-4 bg-slate-950/40 rounded-xl border border-slate-800/60">
                                         <div className="relative flex items-center justify-center">
                                             <svg className="w-32 h-32 transform -rotate-90">
@@ -532,7 +509,6 @@ function App() {
                                         </div>
                                     </div>
 
-                                    {/* Detay Listeleri */}
                                     <div className="space-y-5">
                                         <div className="bg-rose-500/5 border border-rose-500/10 p-5 rounded-xl space-y-3">
                                             <h4 className="text-md font-bold text-rose-400 flex items-center gap-2">
@@ -558,10 +534,8 @@ function App() {
                     </div>
                 )}
 
-                {/* 3. EKRAN: CV GELİŞTİR & ATS SKORU EKRANI */}
                 {activePage === 'ats-check' && (
                     <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-stretch">
-                        {/* SOL PANEL (Yükleme Paneli) */}
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
                             <div className="space-y-6">
                                 <div className="border-b border-slate-800 pb-4">
@@ -603,7 +577,6 @@ function App() {
                             </div>
                         </div>
 
-                        {/* SAĞ PANEL (ATS Sonuç Paneli) */}
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px]">
                             {!showResults ? (
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
@@ -628,7 +601,6 @@ function App() {
                                         <span className="text-xs text-teal-400 bg-teal-400/10 px-2 py-1 rounded">ATS Guard Active</span>
                                     </div>
 
-                                    {/* Senkronize ATS Skoru */}
                                     <div className="flex flex-col items-center justify-center py-4 bg-slate-950/40 rounded-xl border border-slate-800/60">
                                         <div className="relative flex items-center justify-center">
                                             <svg className="w-32 h-32 transform -rotate-90">
@@ -660,7 +632,6 @@ function App() {
                                         </div>
                                     </div>
 
-                                    {/* CV Genel Durum Karnesi */}
                                     <div className="space-y-4 text-sm">
                                         <div className="bg-slate-950 border border-slate-800/80 p-4 rounded-xl space-y-3">
                                             <h4 className="text-slate-300 font-bold border-b border-slate-800 pb-2">📂 CV Genel Karnesi</h4>
