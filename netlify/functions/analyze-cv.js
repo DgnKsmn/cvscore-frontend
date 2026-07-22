@@ -14,7 +14,7 @@ export const handler = async (event, context) => {
             return { statusCode: 500, body: JSON.stringify({ error: 'Netlify panelinde API_KEY bulunamadı! Environment Variables kısmını kontrol edin.' }) };
         }
 
-        const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
