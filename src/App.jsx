@@ -137,7 +137,7 @@ function App() {
         }
     };
 
-    // --- Backend'e Veri Gönderme Fonksiyonu ---
+    // --- Backend'e Veri Gönderme Fonksiyonu (CANLI ORTAMA HAZIRLANDI) ---
     const sonuclariVeritabaninaKaydet = async (dosyaAdi, isLinki, uyumSkoru, atsSkoru, eksiklikler) => {
         const veri = {
             fileName: dosyaAdi,
@@ -147,8 +147,13 @@ function App() {
             suggestions: eksiklikler || ""
         };
 
+        // DİKKAT: Spring Boot projeni Render, AWS veya Heroku'ya yüklediğinde
+        // "http://localhost:8080" kısmını yeni canlı adresinle değiştirmelisin!
+        // Örnek: const backendUrl = "https://cvscore-api.onrender.com";
+        const backendUrl = "http://localhost:8080";
+
         try {
-            const response = await fetch("http://localhost:8080/api/analysis/save", {
+            const response = await fetch(`${backendUrl}/api/analysis/save`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -159,10 +164,10 @@ function App() {
             if (response.ok) {
                 console.log("Sistem Log: Analiz sonuçları MySQL'e başarıyla kaydedildi! 🚀");
             } else {
-                console.error("Sistem Log: Kaydetme işlemi başarısız.");
+                console.error("Sistem Log: Kaydetme işlemi başarısız. Durum Kodu:", response.status);
             }
         } catch (error) {
-            console.error("Sistem Log: Spring Boot motoruna ulaşılamıyor.", error);
+            console.error("Sistem Log: Backend sunucusuna ulaşılamıyor.", error);
         }
     };
 
@@ -462,7 +467,6 @@ function App() {
                                             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-emerald-500"></div>
                                             <h3 className="text-lg font-bold text-slate-300">Yapay Zeka Çalışıyor</h3>
                                             <p className="text-sm text-slate-500 max-w-xs">CV metni ayıklanıyor ve gereksinimlerle eşleştiriliyor...</p>
-                                            {/* YENİ EKLENEN ANİMASYONLU BEKLEME MESAJI */}
                                             <p className="text-amber-400 font-medium mt-4 animate-pulse">
                                                 Bu İşlem Biraz 🤏 Uzun Sürebilir...😊
                                             </p>
