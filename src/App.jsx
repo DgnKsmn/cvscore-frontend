@@ -101,7 +101,7 @@ function App() {
         const token = localStorage.getItem('cvscore_jwt');
 
         try {
-            const response = await fetch("http://localhost:8080/api/ai/analyze", {
+            const response = await fetch("https://cvscore-backend-production.up.railway.app/api/ai/analyze", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -114,7 +114,6 @@ function App() {
                 return "AUTH_REQUIRED";
             }
 
-            // YENİ EKLENEN KISIM: 402 Hata Yakalama (Limit Doldu)
             if (response.status === 402) {
                 return "LIMIT_REACHED";
             }
@@ -148,7 +147,7 @@ function App() {
 
         try {
             const token = localStorage.getItem('cvscore_jwt');
-            await fetch("http://localhost:8080/api/analysis/save", {
+            await fetch("https://cvscore-backend-production.up.railway.app/api/analysis/save", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -198,7 +197,6 @@ function App() {
             return;
         }
 
-        // YENİ EKLENEN KISIM: Kullanıcıyı Ödeme Sayfasına Yönlendirme
         if (aiResult === "LIMIT_REACHED") {
             setIsAnalyzing(false);
             setActivePage('premium');
@@ -321,11 +319,10 @@ function App() {
                         <img src={logo} alt="CVSCORE Logo" className="h-12 w-auto" />
                     </div>
 
-                    {/* SAĞ ÜST BUTONLAR - YENİDEN TASARLANDI */}
+                    {/* SAĞ ÜST BUTONLAR */}
                     <div className="flex gap-3">
                         {!isLoggedIn ? (
                             <>
-                                {/* Sadece Giriş/Kayıt ekranlarında değilsek bu butonu göster */}
                                 {(activePage !== 'login' && activePage !== 'register') && (
                                     <button
                                         onClick={() => { setActivePage('login'); handleReset(); }}
@@ -344,7 +341,6 @@ function App() {
                             </button>
                         )}
 
-                        {/* ANA MENÜYE DÖN BUTONU - KIRMIZI TEMA */}
                         {activePage !== 'home' && (
                             <button
                                 onClick={() => { setActivePage('home'); handleReset(); }}
@@ -360,28 +356,24 @@ function App() {
             {/* ANA İÇERİK */}
             <main className="flex-grow flex items-center justify-center p-6 w-full max-w-6xl mx-auto">
 
-                {/* KAYIT EKRANI */}
                 {activePage === 'register' && (
                     <div className="w-full max-w-md mx-auto">
                         <Register setActivePage={setActivePage} />
                     </div>
                 )}
 
-                {/* GİRİŞ EKRANI */}
                 {activePage === 'login' && (
                     <div className="w-full max-w-md mx-auto">
                         <Login setActivePage={setActivePage} />
                     </div>
                 )}
 
-                {/* PREMIUM (ÖDEME) EKRANI */}
                 {activePage === 'premium' && (
                     <div className="w-full flex justify-center py-8">
                         <Premium setActivePage={setActivePage} />
                     </div>
                 )}
 
-                {/* ANA SAYFA */}
                 {activePage === 'home' && (
                     <div className="max-w-3xl w-full text-center space-y-8">
                         <div className="space-y-4">
@@ -419,7 +411,6 @@ function App() {
                     </div>
                 )}
 
-                {/* İŞ UYUMU HESAPLA EKRANI */}
                 {activePage === 'job-match' && (
                     <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-stretch">
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
@@ -568,7 +559,6 @@ function App() {
                     </div>
                 )}
 
-                {/* ATS SKORUNU ÖĞREN EKRANI */}
                 {activePage === 'ats-check' && (
                     <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-stretch">
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
