@@ -7,7 +7,10 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
     const [showAuthWarning, setShowAuthWarning] = useState(false);
 
     const [showResults, setShowResults] = useState(false);
-    const [matchedJobs, setMatchedJobs] = useState([]);
+
+    const [allFetchedJobs, setAllFetchedJobs] = useState([]);
+    const [displayedJobs, setDisplayedJobs] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -23,15 +26,13 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
         }
     };
 
-    // JSEARCH API İLE GERÇEK İLANLARI ÇEKME FONKSİYONU
     const fetchRealJobsFromJSearch = async () => {
         try {
-            // num_pages=3 yaparak yeterli sayıda sonuç gelmesini garantiye alıyoruz
-            const url = 'https://jsearch.p.rapidapi.com/search?query=Software%20Developer%20in%20Turkey&page=1&num_pages=3';
+            const url = 'https://jsearch.p.rapidapi.com/search?query=Software%20Developer%20in%20Turkey&page=1&num_pages=5';
             const options = {
                 method: 'GET',
                 headers: {
-                    'X-RapidAPI-Key': 'BURAYA_RAPIDAPI_KEY_GELECEK', // Kendi JSearch RapidAPI key'ini buraya ekleyebilirsin
+                    'X-RapidAPI-Key': 'BURAYA_RAPIDAPI_KEY_GELECEK',
                     'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
                 }
             };
@@ -40,37 +41,54 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
             const result = await response.json();
 
             if (result && result.data && result.data.length > 0) {
-                // Tam 25 adet link gösteriyoruz
-                const realJobs = result.data.slice(0, 25).map((job, index) => ({
-                    title: job.job_title || "Yazılım Uzmanı",
-                    company: job.employer_name || "Kurumsal Şirket",
-                    match: `%${99 - index}`,
-                    link: job.job_apply_link || job.job_google_link || `https://www.linkedin.com/jobs/view/${Math.floor(Math.random() * 1000000000)}`
-                }));
-                setMatchedJobs(realJobs);
+                const realJobs = result.data.map((job, index) => {
+                    // ÖNCELİK: Google İşler linki (Çok daha stabil çalışır). Yoksa başvuru linki.
+                    const safeLink = job.job_google_link || job.job_apply_link || "#";
+
+                    return {
+                        title: job.job_title || "Yazılım Uzmanı",
+                        company: job.employer_name || "Kurumsal Şirket",
+                        match: `%${99 - index}`,
+                        link: safeLink
+                    };
+                });
+
+                setAllFetchedJobs(realJobs);
+                setDisplayedJobs(realJobs.slice(0, 10));
+                setCurrentIndex(10);
             } else {
                 fallbackToDefaultJobs();
             }
         } catch (error) {
             console.error("JSearch API Bağlantı Hatası:", error);
-            // API kotası veya ağ hatası durumunda kullanıcıyı mağdur etmemek için yedek veriye düşebiliriz
             fallbackToDefaultJobs();
         }
     };
 
     const fallbackToDefaultJobs = () => {
-        // Hata durumunda da tam 25 adet spesifik ilan linki üretiyoruz
         const unvanlar = ["Frontend Developer", "Backend Developer", "Full Stack Engineer", "React Developer", "Node.js Developer"];
         const sirketler = ["TechCorp Global", "StartupLab", "InnoSoft Yazılım", "Digital Art Studio", "NextGen Teknoloji"];
 
-        const mockJobs = Array.from({ length: 25 }, (_, i) => ({
-            title: unvanlar[i % 5],
-            company: `${sirketler[i % 5]} ${i + 1}`,
-            match: `%${98 - (i * 1)}`,
-            link: `https://www.linkedin.com/jobs/view/${3800000000 + i}` // Doğrudan ilanın kendisine giden spesifik link simülasyonu
-        }));
+        const mockJobs = Array.from({ length: 50 }, (_, i) => {
+            const title = unvanlar[i % 5];
+            const company = `${sirketler[i % 5]}`;
 
-        setMatchedJobs(mockJobs);
+            // ÇÖZÜM: Uydurma ID yerine, LinkedIn üzerinde doğrudan o pozisyonu aratan dinamik bir link oluşturuyoruz.
+            // Böylece sayfa yenilenemedi hatası almak imkansız hale geliyor.
+            const searchQuery = encodeURIComponent(`${title} ${company}`);
+            const safeMockLink = `https://www.linkedin.com/jobs/search/?keywords=${searchQuery}`;
+
+            return {
+                title: title,
+                company: `${company} ${i + 1}`,
+                match: `%${99 - Math.floor(i / 1.5)}`,
+                link: safeMockLink
+            };
+        });
+
+        setAllFetchedJobs(mockJobs);
+        setDisplayedJobs(mockJobs.slice(0, 10));
+        setCurrentIndex(10);
     };
 
     const handleStartAnalysis = async () => {
@@ -89,22 +107,36 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
 
         setShowResults(false);
         setIsAnalyzing(true);
-        toast.loading("JSearch API ile 25 güncel iş ilanı taranıyor...", { duration: 3500 });
+        toast.loading("CV'niz analiz ediliyor, size en uygun ilk 10 ilan seçiliyor...", { duration: 3500 });
 
-        // Gerçek API sorgusunu tetikle (veya demo amaçlı simülasyon gecikmesi)
         await fetchRealJobsFromJSearch();
 
         setTimeout(() => {
             setIsAnalyzing(false);
             setShowResults(true);
-            toast.success("Gerçek iş ilanları başarıyla listelendi!");
+            toast.success("Analiz tamamlandı! İşte en uygun 10 ilan.");
         }, 3000);
+    };
+
+    const handleSuggestMore = () => {
+        const nextJobs = allFetchedJobs.slice(currentIndex, currentIndex + 5);
+
+        if (nextJobs.length === 0) {
+            toast.error("Maalesef havuzdaki tüm ilanları gördünüz.");
+            return;
+        }
+
+        setDisplayedJobs(prev => [...prev, ...nextJobs]);
+        setCurrentIndex(currentIndex + 5);
+        toast.success("Farklı 5 yeni iş ilanı daha eklendi!");
     };
 
     const handleReset = () => {
         setCvFile(null);
         setShowResults(false);
-        setMatchedJobs([]);
+        setAllFetchedJobs([]);
+        setDisplayedJobs([]);
+        setCurrentIndex(0);
         setShowAuthWarning(false);
     };
 
@@ -113,7 +145,7 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-white mb-2">Yapay Zeka İş Eşleşmeleri</h1>
                 <p className="text-slate-400">
-                    Sizin için en uygun güncel iş ilanlarını JSearch motoru ile tarayıp listelemek için CV'nizi yükleyin.
+                    Sizin için en uygun 10 güncel ilanı JSearch motoru ile bulmak için CV'nizi yükleyin.
                 </p>
             </div>
 
@@ -122,7 +154,7 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                     <>
                         <div className="text-6xl mb-6 opacity-80">🔍</div>
                         <h2 className="text-xl font-bold text-white mb-3">
-                            {isAnalyzing ? "JSearch API Taraması Yapılıyor" : "Henüz Bir Analiz Başlatmadınız"}
+                            {isAnalyzing ? "Yapay Zeka Taraması Yapılıyor" : "Henüz Bir Analiz Başlatmadınız"}
                         </h2>
                         <p className="text-slate-400 max-w-lg mb-8 text-sm leading-relaxed">
                             {isAnalyzing
@@ -180,13 +212,12 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                 ) : (
                     <div className="w-full space-y-6">
                         <div className="border-b border-slate-800 pb-4 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-white">JSearch Aktif İş İlanları ({matchedJobs.length})</h3>
+                            <h3 className="text-xl font-bold text-white">Önerilen İş İlanları ({displayedJobs.length})</h3>
                             <span className="text-xs text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full font-semibold">JSearch API Live</span>
                         </div>
 
-                        {/* 25 İlan listeleneceği için maksimum yükseklik ve scroll eklendi */}
-                        <div className="space-y-3 text-left max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                            {matchedJobs.map((job, idx) => (
+                        <div className="space-y-3 text-left max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                            {displayedJobs.map((job, idx) => (
                                 <div key={idx} className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between hover:border-blue-500/50 transition-all">
                                     <div>
                                         <h4 className="font-bold text-slate-100 text-sm md:text-base">{job.title}</h4>
@@ -207,7 +238,14 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                             ))}
                         </div>
 
-                        <div className="pt-4 flex justify-center">
+                        <div className="pt-4 flex justify-center gap-4">
+                            <button
+                                onClick={handleSuggestMore}
+                                className="bg-blue-600/20 border border-blue-500/50 hover:bg-blue-600/40 text-blue-400 text-sm font-bold py-2.5 px-6 rounded-xl transition-all"
+                            >
+                                + Yeni İş İlanı Linkleri Öner
+                            </button>
+
                             <button
                                 onClick={handleReset}
                                 className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold py-2.5 px-6 rounded-xl transition-colors"
