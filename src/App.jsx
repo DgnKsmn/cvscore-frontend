@@ -48,16 +48,21 @@ function App() {
         }
     };
 
-    // Backend'deki PDF okuma servisi canlı Railway adresine yönlendirildi
+    // Backend'deki PDF okuma servisi canlı Railway adresine ve JWT token ile yönlendirildi
     const uploadCvToBackend = async (file) => {
         const formData = new FormData();
         formData.append("file", file);
+
+        const token = localStorage.getItem('cvscore_jwt');
 
         try {
             console.log("Sistem Log: PDF backend'e gönderiliyor...");
 
             const response = await fetch("https://cvscore-backend-production.up.railway.app/api/resume/upload", {
                 method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
                 body: formData,
             });
 
@@ -67,12 +72,12 @@ function App() {
             if (response.ok) {
                 toast.success(`Backend PDF'i başarıyla okudu! Uzunluk: ${data.fullTextLength} karakter`);
             } else {
-                toast.error("Backend PDF okuma hatası: " + data.error);
+                toast.error("Backend PDF okuma hatası: " + (data.error || "Bilinmeyen hata"));
             }
 
         } catch (error) {
             console.error("Yükleme hatası:", error);
-            toast.error("Backend sunucusuna ulaşılamadı.");
+            toast.error("Sunucu bağlantısı kurulamadı.");
         }
     };
 
