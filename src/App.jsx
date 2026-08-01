@@ -20,6 +20,9 @@ function App() {
     const [showResults, setShowResults] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+    // Uyarı kutusunun görünürlüğünü kontrol eden state
+    const [showAuthWarning, setShowAuthWarning] = useState(false);
+
     const [analysisResult, setAnalysisResult] = useState({
         score: 0,
         missingSkills: [],
@@ -164,13 +167,17 @@ function App() {
         setJobDescription('');
         setSelectedFile(null);
         setShowResults(false);
+        setShowAuthWarning(false);
     };
 
     const handleCalculateMatch = async () => {
         if (!isLoggedIn) {
+            setShowAuthWarning(true);
             toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
-            return; // setActivePage('login') kaldırıldı, sadece uyarı verecek
+            return;
         }
+
+        setShowAuthWarning(false);
 
         if (!jobLink && !jobDescription) {
             toast.error("Lütfen bir iş ilanı linki girin veya iş tanımı metnini yapıştırın!");
@@ -228,9 +235,12 @@ function App() {
 
     const handleAtsCheck = async () => {
         if (!isLoggedIn) {
+            setShowAuthWarning(true);
             toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
-            return; // setActivePage('login') kaldırıldı, sadece uyarı verecek
+            return;
         }
+
+        setShowAuthWarning(false);
 
         if (!selectedFile) {
             toast.error("Lütfen ATS analizi için bir CV dosyası yükleyin!");
@@ -441,7 +451,7 @@ function App() {
                                 <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-2xl mb-4">✨</div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">YAPAY ZEKA İLE İŞ BUL</h3>
-                                    <p className="text-sm text-slate-400">Sizin için en uygun 5 - 10 iş ilanı linkini bulun ve eşleşmeleri anında görün.</p>
+                                    <p className="text-sm text-slate-400">Sizin için en uygun 25 - 100 iş ilanı linkini bulun ve eşleşmeleri anında görün.</p>
                                 </div>
                             </button>
                         </div>
@@ -506,8 +516,8 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* KULLANICI GİRİŞ YAPMADIYSA GÖRÜNECEK KIRMIZI UYARI KUTUSU */}
-                            {!isLoggedIn && (
+                            {/* UYARI KUTUSU ARTIK SADECE BUTONA BASILINCA ÇIKACAK */}
+                            {!isLoggedIn && showAuthWarning && (
                                 <div
                                     onClick={() => setActivePage('login')}
                                     className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mt-4 w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
@@ -648,8 +658,8 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* KULLANICI GİRİŞ YAPMADIYSA GÖRÜNECEK KIRMIZI UYARI KUTUSU */}
-                            {!isLoggedIn && (
+                            {/* UYARI KUTUSU ARTIK SADECE BUTONA BASILINCA ÇIKACAK */}
+                            {!isLoggedIn && showAuthWarning && (
                                 <div
                                     onClick={() => setActivePage('login')}
                                     className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mt-4 w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"

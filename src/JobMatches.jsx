@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 
-// isLoggedIn prop'unu buraya ekledik (App.jsx'ten gönderilmeli)
 const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
     const [cvFile, setCvFile] = useState(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+    // Uyarının görünüp görünmeyeceğini kontrol eden YENİ STATE
+    const [showAuthWarning, setShowAuthWarning] = useState(false);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -12,6 +14,8 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
             if (file.type === "application/pdf") {
                 setCvFile(file);
                 toast.success(`${file.name} başarıyla eklendi!`);
+                // Kullanıcı dosya yüklediğinde hata mesajını temizle
+                setShowAuthWarning(false);
             } else {
                 toast.error("Lütfen sadece PDF formatında bir CV yükleyin.");
                 e.target.value = null;
@@ -22,9 +26,13 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
     const handleStartAnalysis = () => {
         // 1. Önce giriş kontrolü yap
         if (!isLoggedIn) {
+            setShowAuthWarning(true); // UYARIYI SADECE BURADA EKRANA GETİR
             toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
             return;
         }
+
+        // Giriş yapılmışsa uyarıyı kapalı tut
+        setShowAuthWarning(false);
 
         // 2. Sonra dosya kontrolü yap
         if (!cvFile) {
@@ -50,7 +58,6 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                     </div>
                 </div>
                 <div className="flex gap-4">
-                    {/* Giriş durumuna göre butonları değiştir */}
                     {isLoggedIn ? (
                         <button
                             onClick={() => setActivePage && setActivePage('login')}
@@ -109,9 +116,12 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                         )}
                     </div>
 
-                    {/* KULLANICI GİRİŞ YAPMADIYSA GÖRÜNECEK KIRMIZI UYARI KUTUSU */}
-                    {!isLoggedIn && (
-                        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-6 w-full max-w-md text-center text-sm font-medium">
+                    {/* UYARI KUTUSU ARTIK SADECE BUTONA BASILINCA VE GİRİŞ YAPILMAMIŞSA ÇIKACAK */}
+                    {!isLoggedIn && showAuthWarning && (
+                        <div
+                            onClick={() => setActivePage('login')}
+                            className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-6 w-full max-w-md text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
+                        >
                             Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
                         </div>
                     )}
