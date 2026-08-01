@@ -1,39 +1,37 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast'; // Tost kütüphanesi içeri aktarıldı
 
 const Login = ({ setActivePage }) => {
-    const [email, setEmail] = useState(''); // username yerine email yapıldı
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    // error state'i tamamen kaldırıldı, artık tüm hataları toast ile göstereceğiz.
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setIsLoading(true);
 
         try {
             const response = await fetch("https://cvscore-backend-production.up.railway.app/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                // JSON gövdesine e-posta olarak gönderiliyor
                 body: JSON.stringify({ email, password })
             });
 
             if (response.ok) {
-                // Backend'den dönen JSON nesnesini alıp içindeki token'ı çıkarıyoruz
                 const data = await response.json();
-
-                // Token'ı tarayıcının hafızasına (localStorage) kaydediyoruz
                 localStorage.setItem('cvscore_jwt', data.token);
 
-                alert("Giriş başarılı! Yönlendiriliyorsunuz...");
-                setActivePage('home'); // Başarılı girişte ana sayfaya at
+                // Eski çirkin alert() yerine modern bildirim eklendi
+                toast.success("Giriş başarılı! Yönlendiriliyorsunuz...");
+                setActivePage('home');
             } else {
-                setError("E-posta veya şifre hatalı!"); // Mesaj güncellendi
+                // Sayfa içi div yerine sağ üstten gelen şık hata mesajı
+                toast.error("E-posta veya şifre hatalı!");
             }
         } catch (err) {
             console.error("Giriş Hatası:", err);
-            setError("Sunucu bağlantısında bir sorun oluştu.");
+            toast.error("Sunucu bağlantısında bir sorun oluştu.");
         } finally {
             setIsLoading(false);
         }
@@ -46,18 +44,12 @@ const Login = ({ setActivePage }) => {
                 <p className="text-slate-400 mt-2 text-sm">CV analizi yapmak için hesabınıza giriş yapın</p>
             </div>
 
-            {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg mb-6 text-center">
-                    {error}
-                </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-300 block">E-posta Adresi</label>
                     <input
-                        type="email" // E-posta doğrulaması için eklendi
-                        value={email} // email state'i bağlandı
+                        type="email"
+                        value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-blue-500 transition-colors"

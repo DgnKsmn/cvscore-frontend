@@ -5,6 +5,7 @@ import Register from './Register';
 import Login from './Login';
 import Premium from './Premium';
 import JobMatches from './JobMatches'; // Yeni Yapay Zeka İş Bulma Sayfası Eklendi
+import { Toaster, toast } from 'react-hot-toast'; // Tost Bildirimleri Eklendi
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
@@ -37,6 +38,9 @@ function App() {
         experienceCheck: '',
         suggestions: []
     });
+
+    // MERKEZİ GİRİŞ KONTROLÜ
+    const isLoggedIn = !!localStorage.getItem('cvscore_jwt');
 
     const generateConsistentScore = (keyString) => {
         let hash = 0;
@@ -132,7 +136,7 @@ function App() {
             return finalResult;
         } catch (error) {
             console.error("Yapay Zeka Analiz Hatası:", error);
-            alert("Sunucu ile bağlantı kurulamadı.");
+            toast.error("Sunucu ile bağlantı kurulamadı.");
             return null;
         }
     };
@@ -169,12 +173,18 @@ function App() {
     };
 
     const handleCalculateMatch = async () => {
+        if (!isLoggedIn) {
+            toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
+            setActivePage('login');
+            return;
+        }
+
         if (!jobLink && !jobDescription) {
-            alert("Lütfen bir iş ilanı linki girin veya iş tanımı metnini yapıştırın!");
+            toast.error("Lütfen bir iş ilanı linki girin veya iş tanımı metnini yapıştırın!");
             return;
         }
         if (!selectedFile) {
-            alert("Lütfen analiz için bir CV dosyası yükleyin!");
+            toast.error("Lütfen analiz için bir CV dosyası yükleyin!");
             return;
         }
 
@@ -192,7 +202,7 @@ function App() {
         const aiResult = await analyzeWithGemini(extractedCvText, jobContext);
 
         if (aiResult === "AUTH_REQUIRED") {
-            alert("Öncelikle hesap oluşturmalısınız veya kayıtlı hesabınıza giriş yapmalısınız.");
+            toast.error("Öncelikle hesap oluşturmalısınız veya kayıtlı hesabınıza giriş yapmalısınız.");
             setActivePage('login');
             setIsAnalyzing(false);
             return;
@@ -212,7 +222,7 @@ function App() {
             });
             sonuclariVeritabaninaKaydet(selectedFile.name, jobLink, aiResult.score, 0, aiResult.missingSkills.join(" | "));
         } else {
-            alert("Yapay zeka analizi sırasında bir hata oluştu.");
+            toast.error("Yapay zeka analizi sırasında bir hata oluştu.");
             setAnalysisResult({
                 score: 0,
                 missingSkills: ["AI motoruna ulaşılamadı."],
@@ -224,8 +234,14 @@ function App() {
     };
 
     const handleAtsCheck = async () => {
+        if (!isLoggedIn) {
+            toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
+            setActivePage('login');
+            return;
+        }
+
         if (!selectedFile) {
-            alert("Lütfen ATS analizi için bir CV dosyası yükleyin!");
+            toast.error("Lütfen ATS analizi için bir CV dosyası yükleyin!");
             return;
         }
 
@@ -300,18 +316,35 @@ function App() {
         return () => window.removeEventListener('popstate', handleBackButton);
     }, []);
 
-    const isLoggedIn = !!localStorage.getItem('cvscore_jwt');
-
     const handleLogout = () => {
         localStorage.removeItem('cvscore_jwt');
-        alert("Başarıyla çıkış yapıldı.");
-        window.location.href = "/";
+        toast.success("Başarıyla çıkış yapıldı! Görüşmek üzere.");
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 1500); // Kullanıcı bildirimi görebilsin diye yönlendirme öncesi minik bir gecikme ekledim
     };
 
     return (
         <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between font-sans">
-            {/* ÜST NAVBAR */}
-            <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+
+            {/* Tost Bildirimleri İçin Konteyner - YAZDIRILIRKEN GİZLENECEK */}
+            <div className="print:hidden">
+                <Toaster
+                    position="top-right"
+                    reverseOrder={false}
+                    toastOptions={{
+                        style: {
+                            borderRadius: '10px',
+                            background: '#1e293b',
+                            color: '#fff',
+                            border: '1px solid #334155',
+                        },
+                    }}
+                />
+            </div>
+
+            {/* ÜST NAVBAR - YAZDIRILIRKEN GİZLENECEK */}
+            <header className="print:hidden border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
                     <div
                         onClick={() => { setActivePage('home'); handleReset(); }}
@@ -358,32 +391,32 @@ function App() {
             <main className="flex-grow flex items-center justify-center p-6 w-full max-w-6xl mx-auto">
 
                 {activePage === 'register' && (
-                    <div className="w-full max-w-md mx-auto">
+                    <div className="w-full max-w-md mx-auto print:hidden">
                         <Register setActivePage={setActivePage} />
                     </div>
                 )}
 
                 {activePage === 'login' && (
-                    <div className="w-full max-w-md mx-auto">
+                    <div className="w-full max-w-md mx-auto print:hidden">
                         <Login setActivePage={setActivePage} />
                     </div>
                 )}
 
                 {activePage === 'premium' && (
-                    <div className="w-full flex justify-center py-8">
+                    <div className="w-full flex justify-center py-8 print:hidden">
                         <Premium setActivePage={setActivePage} />
                     </div>
                 )}
 
-                {/* YENİ SAYFA BAĞLANTISI BURADA */}
+                {/* YENİ SAYFA BAĞLANTISI VE PROP AKTARIMI */}
                 {activePage === 'ai-jobs' && (
-                    <div className="w-full max-w-6xl mx-auto">
-                        <JobMatches />
+                    <div className="w-full max-w-6xl mx-auto print:hidden">
+                        <JobMatches isLoggedIn={isLoggedIn} />
                     </div>
                 )}
 
                 {activePage === 'home' && (
-                    <div className="max-w-4xl w-full text-center space-y-8">
+                    <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
                             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
                                 Yapay Zeka Destekli CV Analizi
@@ -401,7 +434,7 @@ function App() {
                             >
                                 <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 text-2xl mb-4">🎯</div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İŞ UYUMU HESAPLA</h3>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İŞE UYUMUNU HESAPLA</h3>
                                     <p className="text-sm text-slate-400">LinkedIn veya kariyer sitelerindeki ilanlarla CV'nizi karşılaştırın.</p>
                                 </div>
                             </button>
@@ -433,11 +466,14 @@ function App() {
                 )}
 
                 {activePage === 'job-match' && (
-                    <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-stretch">
-                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
+                    // YAZDIRMA SIRASINDA GRID'İ BOZUP ALT ALTA DİZER, BÖYLECE SAĞ PANEL TAM EKRAN OLUR (print:block)
+                    <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start print:block">
+
+                        {/* SOL PANEL - YAZDIRILIRKEN GİZLENECEK (print:hidden) */}
+                        <div className="print:hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
                             <div className="space-y-6">
                                 <div className="border-b border-slate-800 pb-4">
-                                    <h2 className="text-2xl font-bold text-slate-100">İŞ UYUMU HESAPLA</h2>
+                                    <h2 className="text-2xl font-bold text-slate-100">İŞE UYUMUNU HESAPLA</h2>
                                     <p className="text-sm text-slate-400 mt-1">İlan detayları ile CV'nizi karşılaştırın</p>
                                 </div>
 
@@ -500,7 +536,8 @@ function App() {
                             </div>
                         </div>
 
-                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px]">
+                        {/* SAĞ PANEL (SONUÇLAR) - YAZDIRIRKEN ÇERÇEVEYİ TEMİZLER */}
+                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px] print:border-none print:shadow-none">
                             {!showResults ? (
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
                                     {isAnalyzing ? (
@@ -521,7 +558,17 @@ function App() {
                                 <div className="space-y-6">
                                     <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
                                         <h3 className="text-xl font-bold text-slate-100">Analiz Sonucu</h3>
-                                        <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">AI Active</span>
+
+                                        {/* YAZDIR BUTONU BURAYA EKLENDİ */}
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => window.print()}
+                                                className="print:hidden text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-indigo-500/20"
+                                            >
+                                                <span>📥</span> Raporu İndir
+                                            </button>
+                                            <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">AI Active</span>
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-col items-center justify-center py-4 bg-slate-950/40 rounded-xl border border-slate-800/60">
@@ -581,8 +628,11 @@ function App() {
                 )}
 
                 {activePage === 'ats-check' && (
-                    <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-stretch">
-                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
+                    // YAZDIRMA SIRASINDA GRID'İ BOZUP ALT ALTA DİZER (print:block)
+                    <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start print:block">
+
+                        {/* SOL PANEL - YAZDIRILIRKEN GİZLENECEK (print:hidden) */}
+                        <div className="print:hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
                             <div className="space-y-6">
                                 <div className="border-b border-slate-800 pb-4">
                                     <h2 className="text-2xl font-bold text-slate-100">ATS SKORUNU ÖĞREN</h2>
@@ -623,7 +673,8 @@ function App() {
                             </div>
                         </div>
 
-                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px]">
+                        {/* SAĞ PANEL (SONUÇLAR) - YAZDIRIRKEN ÇERÇEVEYİ TEMİZLER */}
+                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px] print:border-none print:shadow-none">
                             {!showResults ? (
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
                                     {isAnalyzing ? (
@@ -644,7 +695,17 @@ function App() {
                                 <div className="space-y-6">
                                     <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
                                         <h3 className="text-xl font-bold text-slate-100">Genel ATS Analizi</h3>
-                                        <span className="text-xs text-teal-400 bg-teal-400/10 px-2 py-1 rounded">ATS Guard Active</span>
+
+                                        {/* YAZDIR BUTONU BURAYA EKLENDİ */}
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => window.print()}
+                                                className="print:hidden text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-indigo-500/20"
+                                            >
+                                                <span>📥</span> Raporu İndir
+                                            </button>
+                                            <span className="text-xs text-teal-400 bg-teal-400/10 px-2 py-1 rounded">ATS Guard Active</span>
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-col items-center justify-center py-4 bg-slate-950/40 rounded-xl border border-slate-800/60">
@@ -710,7 +771,8 @@ function App() {
 
             </main>
 
-            <footer className="border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-600">
+            {/* ALT BİLGİ - YAZDIRILIRKEN GİZLENECEK */}
+            <footer className="print:hidden border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-600">
                 © 2026 CVSCORE - Yapay Zeka Destekli CV Analiz Platformu
             </footer>
         </div>
