@@ -12,8 +12,8 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
     const [displayedJobs, setDisplayedJobs] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    // RAPOR MODALI İÇİN STATE
-    const [showReport, setShowReport] = useState(false);
+    // HANGİ İLANIN DETAYININ AÇIK OLDUĞUNU TUTAN STATE
+    const [expandedJobIndex, setExpandedJobIndex] = useState(null);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -31,7 +31,6 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
 
     const fetchRealJobsFromJSearch = async () => {
         try {
-            // Geniş bir link havuzu oluşturmak için (yaklaşık 100 ilan) num_pages değerini yüksek tutuyoruz
             const url = 'https://jsearch.p.rapidapi.com/search?query=Software%20Developer%20in%20Turkey&page=1&num_pages=10';
             const options = {
                 method: 'GET',
@@ -48,22 +47,22 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                 const realJobs = result.data.map((job, index) => {
                     const title = job.job_title || "Yazılım Uzmanı";
                     const company = job.employer_name || "Gizli Şirket";
+                    const matchScore = Math.max(70, 99 - index);
 
-                    // KESİN ÇÖZÜM: JSearch'ün saçmalayan linkleri yerine doğrudan %100 o işe giden LinkedIn araması!
-                    // Böylece Frontend tıklayıp Veteriner olma ihtimalini sıfıra indiriyoruz.
                     const searchQuery = encodeURIComponent(`${title} ${company}`);
                     const guaranteedLink = `https://www.linkedin.com/jobs/search/?keywords=${searchQuery}`;
 
                     return {
                         title: title,
                         company: company,
-                        match: `%${Math.max(70, 99 - index)}`,
+                        matchScore: matchScore,
+                        match: `%${matchScore}`,
                         link: guaranteedLink
                     };
                 });
 
                 setAllFetchedJobs(realJobs);
-                setDisplayedJobs(realJobs.slice(0, 10)); // İlk 10'u göster
+                setDisplayedJobs(realJobs.slice(0, 10));
                 setCurrentIndex(10);
             } else {
                 fallbackToDefaultJobs();
@@ -78,10 +77,10 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
         const unvanlar = ["Frontend Developer", "Backend Developer", "Full Stack Engineer", "React Native Developer", "UI/UX Designer"];
         const sirketler = ["TechCorp Global", "StartupLab", "InnoSoft Yazılım", "Digital Art Studio", "NextGen Teknoloji"];
 
-        // Yedek havuzda 100 adet ilan tutuyoruz
         const mockJobs = Array.from({ length: 100 }, (_, i) => {
             const title = unvanlar[i % 5];
             const company = `${sirketler[i % 5]}`;
+            const matchScore = Math.max(65, 99 - Math.floor(i / 2));
 
             const searchQuery = encodeURIComponent(`${title} ${company}`);
             const safeMockLink = `https://www.linkedin.com/jobs/search/?keywords=${searchQuery}`;
@@ -89,7 +88,8 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
             return {
                 title: title,
                 company: `${company} ${i + 1}`,
-                match: `%${Math.max(65, 99 - Math.floor(i / 2))}`,
+                matchScore: matchScore,
+                match: `%${matchScore}`,
                 link: safeMockLink
             };
         });
@@ -146,7 +146,16 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
         setDisplayedJobs([]);
         setCurrentIndex(0);
         setShowAuthWarning(false);
-        setShowReport(false);
+        setExpandedJobIndex(null);
+    };
+
+    // İlan kartına tıklanınca açma/kapama fonksiyonu
+    const toggleJobExpand = (index) => {
+        if (expandedJobIndex === index) {
+            setExpandedJobIndex(null); // Zaten açıksa kapat
+        } else {
+            setExpandedJobIndex(index); // Değilse aç
+        }
     };
 
     return (
@@ -154,7 +163,7 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-white mb-2">Yapay Zeka İş Eşleşmeleri</h1>
                 <p className="text-slate-400">
-                    Sizin için en uygun güncel ilanları ve detaylı CV analiz raporunuzu görüntüleyin.
+                    Sizin için en uygun güncel ilanları ve detaylı CV analiz raporunuzu görüntüleyin. İlanların üzerine tıklayarak detayları görebilirsiniz.
                 </p>
             </div>
 
@@ -220,79 +229,88 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                     </>
                 ) : (
                     <div className="w-full space-y-6">
-
-                        {/* RAPOR BÖLÜMÜ (MODAL GİBİ ÜSTTE AÇILIR) */}
-                        {showReport && (
-                            <div className="bg-slate-950 border border-blue-500/30 rounded-xl p-6 mb-6 text-left shadow-lg shadow-blue-500/10 transition-all">
-                                <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-4">
-                                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                        <span>📊</span> CV Analiz Raporu
-                                    </h3>
-                                    <button onClick={() => setShowReport(false)} className="text-slate-400 hover:text-white">
-                                        ✕ Kapat
-                                    </button>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="bg-slate-900 p-4 rounded-lg border border-slate-800 text-center">
-                                        <p className="text-slate-400 text-sm mb-2">ATS Uyum Skoru</p>
-                                        <p className="text-4xl font-bold text-emerald-400">%82</p>
-                                        <p className="text-xs text-slate-500 mt-2">Sektör ortalamasının üzerinde</p>
-                                    </div>
-                                    <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
-                                        <p className="text-emerald-400 text-sm font-bold mb-2">Güçlü Yönleriniz</p>
-                                        <ul className="text-slate-300 text-sm space-y-1 list-disc list-inside">
-                                            <li>Modern Framework tecrübesi</li>
-                                            <li>Temiz kod mimarisi geçmişi</li>
-                                            <li>Problem çözme yetkinliği</li>
-                                        </ul>
-                                    </div>
-                                    <div className="bg-slate-900 p-4 rounded-lg border border-slate-800">
-                                        <p className="text-amber-400 text-sm font-bold mb-2">Gelişim Alanları</p>
-                                        <ul className="text-slate-300 text-sm space-y-1 list-disc list-inside">
-                                            <li>Cloud (AWS/Azure) araçları eksik</li>
-                                            <li>Test yazım pratikleri (Jest vb.)</li>
-                                            <li>Açık kaynak katkıları kısıtlı</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                         <div className="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-3">
                                 <h3 className="text-xl font-bold text-white">Önerilen İş İlanları ({displayedJobs.length})</h3>
                                 <span className="text-xs text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full font-semibold">JSearch Destekli</span>
                             </div>
-
-                            <button
-                                onClick={() => setShowReport(!showReport)}
-                                className="bg-emerald-500/20 border border-emerald-500/50 hover:bg-emerald-500/40 text-emerald-400 text-sm font-bold py-2 px-5 rounded-lg transition-all"
-                            >
-                                {showReport ? "Raporu Gizle" : "CV Analiz Raporunu Gör"}
-                            </button>
+                            <span className="text-sm text-slate-400 italic">Analiz raporunu görmek için bir ilana tıklayın</span>
                         </div>
 
-                        <div className="space-y-3 text-left max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                            {displayedJobs.map((job, idx) => (
-                                <div key={idx} className="bg-slate-950 border border-slate-800 p-4 rounded-xl flex items-center justify-between hover:border-blue-500/50 transition-all group">
-                                    <div>
-                                        <h4 className="font-bold text-slate-100 text-sm md:text-base group-hover:text-blue-400 transition-colors">{job.title}</h4>
-                                        <p className="text-xs text-slate-400">{job.company}</p>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-emerald-400 font-bold text-sm bg-emerald-500/10 px-3 py-1 rounded-lg">{job.match} Uyum</span>
-                                        <a
-                                            href={job.link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-2 rounded-lg font-semibold transition-colors"
+                        <div className="space-y-4 text-left max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                            {displayedJobs.map((job, idx) => {
+                                const isExpanded = expandedJobIndex === idx;
+
+                                return (
+                                    <div
+                                        key={idx}
+                                        className={`bg-slate-950 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-blue-500/50 shadow-lg shadow-blue-500/10' : 'border-slate-800 hover:border-slate-600'}`}
+                                    >
+                                        {/* İLAN BAŞLIĞI - TIKLANABİLİR ALAN */}
+                                        <div
+                                            className="p-4 flex flex-col md:flex-row items-center justify-between cursor-pointer"
+                                            onClick={() => toggleJobExpand(idx)}
                                         >
-                                            İlana Git
-                                        </a>
+                                            <div className="flex-1 w-full md:w-auto mb-3 md:mb-0">
+                                                <h4 className="font-bold text-slate-100 text-base md:text-lg">{job.title}</h4>
+                                                <p className="text-sm text-slate-400">{job.company}</p>
+                                            </div>
+                                            <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                                                <span className="text-emerald-400 font-bold text-sm bg-emerald-500/10 px-3 py-1 rounded-lg">
+                                                    {job.match} Uyum
+                                                </span>
+                                                <a
+                                                    href={job.link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={(e) => e.stopPropagation()} // Tıklamanın akordiyonu tetiklemesini engeller
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg font-semibold transition-colors"
+                                                >
+                                                    İlana Git
+                                                </a>
+                                                {/* Açma / Kapama İkonu */}
+                                                <span className="text-slate-400 ml-2">
+                                                    {isExpanded ? '▲' : '▼'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* AŞAĞI DOĞRU AÇILAN RAPOR DETAYI */}
+                                        {isExpanded && (
+                                            <div className="bg-slate-900 border-t border-slate-800 p-6 transition-all">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                    {/* Skor Kartı */}
+                                                    <div className="bg-[#0f172a] p-5 rounded-xl border border-slate-800 flex flex-col items-center justify-center">
+                                                        <p className="text-slate-400 text-sm mb-3">ATS Uyum Skoru</p>
+                                                        <p className="text-5xl font-bold text-emerald-400">%{job.matchScore}</p>
+                                                        <p className="text-xs text-slate-500 mt-3">Sektör ortalamasının üzerinde</p>
+                                                    </div>
+
+                                                    {/* Güçlü Yönler */}
+                                                    <div className="bg-[#0f172a] p-5 rounded-xl border border-slate-800">
+                                                        <p className="text-emerald-400 text-sm font-bold mb-3">Güçlü Yönleriniz</p>
+                                                        <ul className="text-slate-300 text-sm space-y-2 list-disc list-inside">
+                                                            <li>Modern Framework tecrübesi</li>
+                                                            <li>Temiz kod mimarisi geçmişi</li>
+                                                            <li>Problem çözme yetkinliği</li>
+                                                        </ul>
+                                                    </div>
+
+                                                    {/* Gelişim Alanları */}
+                                                    <div className="bg-[#0f172a] p-5 rounded-xl border border-slate-800">
+                                                        <p className="text-amber-400 text-sm font-bold mb-3">Gelişim Alanları</p>
+                                                        <ul className="text-slate-300 text-sm space-y-2 list-disc list-inside">
+                                                            <li>Cloud (AWS/Azure) araçları eksik</li>
+                                                            <li>Test yazım pratikleri (Jest vb.)</li>
+                                                            <li>Açık kaynak katkıları kısıtlı</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         <div className="pt-4 flex flex-wrap justify-center gap-4">
