@@ -161,9 +161,9 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
     return (
         <div className="w-full max-w-5xl mx-auto">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-white mb-2">Yapay Zeka İş Eşleşmeleri</h1>
+                <h1 className="text-3xl font-bold text-white mb-2">İş İlanı Linkleri Ve Uyumları</h1>
                 <p className="text-slate-400">
-                    Sizin için en uygun güncel ilanları ve detaylı CV analiz raporunuzu görüntüleyin. İlanların üzerine tıklayarak detayları görebilirsiniz.
+                    Size en uygun iş ilanlarını görebilirsiniz. İlanların sağındaki oklara tıklayarak detayları görebilirsiniz.
                 </p>
             </div>
 
@@ -177,7 +177,7 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                         <p className="text-slate-400 max-w-lg mb-8 text-sm leading-relaxed">
                             {isAnalyzing
                                 ? "Küresel iş havuzundan kariyerinize en uygun aktif ilanlar filtreleniyor ve CV skorunuz hesaplanıyor..."
-                                : "Sisteme yükleyeceğiniz CV verileriniz doğrultusunda aktif iş ilanı linklerinin taranması ve profil raporunuzun oluşturulması için motoru çalıştırın."}
+                                : ""}
                         </p>
 
                         {!isAnalyzing && (
@@ -223,7 +223,7 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                                 onClick={handleStartAnalysis}
                                 className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2"
                             >
-                                <span>✨</span> JSearch ile İlanları Bul
+                                <span>✨</span> ANALİZİ BAŞLAT
                             </button>
                         )}
                     </>

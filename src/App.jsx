@@ -451,7 +451,7 @@ function App() {
                                 <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-2xl mb-4">✨</div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">YAPAY ZEKA İLE İŞ BUL</h3>
-                                    <p className="text-sm text-slate-400">Sizin için en uygun 25 - 100 iş ilanı linkini bulun ve eşleşmeleri anında görün.</p>
+                                    <p className="text-sm text-slate-400">Sizin için en uygun 10 iş ilanı linkini bulun ve eşleşmeleri anında görün.</p>
                                 </div>
                             </button>
                         </div>
