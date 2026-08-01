@@ -4,11 +4,12 @@ import * as pdfjsLib from 'pdfjs-dist';
 import Register from './Register';
 import Login from './Login';
 import Premium from './Premium';
+import JobMatches from './JobMatches'; // Yeni Yapay Zeka İş Bulma Sayfası Eklendi
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 function App() {
-    // Sayfa yönetimi: 'home', 'job-match', 'ats-check', 'register', 'login', 'premium'
+    // Sayfa yönetimi: 'home', 'job-match', 'ats-check', 'register', 'login', 'premium', 'ai-jobs'
     const [activePage, setActivePage] = useState('home');
 
     // Ortak Form Durumları
@@ -374,8 +375,15 @@ function App() {
                     </div>
                 )}
 
+                {/* YENİ SAYFA BAĞLANTISI BURADA */}
+                {activePage === 'ai-jobs' && (
+                    <div className="w-full max-w-6xl mx-auto">
+                        <JobMatches />
+                    </div>
+                )}
+
                 {activePage === 'home' && (
-                    <div className="max-w-3xl w-full text-center space-y-8">
+                    <div className="max-w-4xl w-full text-center space-y-8">
                         <div className="space-y-4">
                             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
                                 Yapay Zeka Destekli CV Analizi
@@ -385,7 +393,8 @@ function App() {
                             </p>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6 pt-4">
+                        {/* GRID YAPISI 3 KOLONA ÇIKARILDI */}
+                        <div className="grid md:grid-cols-3 gap-6 pt-4">
                             <button
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
                                 className="group relative bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] flex flex-col justify-between min-h-[220px]"
@@ -405,6 +414,18 @@ function App() {
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">ATS SKORUNU ÖĞREN</h3>
                                     <p className="text-sm text-slate-400">CV'nizin biçimsel hatalarını ve genel ATS puanını analiz edin.</p>
+                                </div>
+                            </button>
+
+                            {/* YENİ YAPAY ZEKA İŞ BULMA BUTONU */}
+                            <button
+                                onClick={() => { setActivePage('ai-jobs'); handleReset(); }}
+                                className="group relative bg-slate-900 border border-slate-800 hover:border-indigo-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.1)] flex flex-col justify-between min-h-[220px]"
+                            >
+                                <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-2xl mb-4">✨</div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">YAPAY ZEKA İLE İŞ BUL</h3>
+                                    <p className="text-sm text-slate-400">Sizin için en uygun 25 ile 100 arası ilanın linklerini bulun ve eşleşmeleri anında görün.</p>
                                 </div>
                             </button>
                         </div>
