@@ -48,7 +48,7 @@ function App() {
         }
     };
 
-    // Backend'deki yeni PDF okuma servisimizi test eden fonksiyon
+    // Backend'deki PDF okuma servisi canlı Railway adresine yönlendirildi
     const uploadCvToBackend = async (file) => {
         const formData = new FormData();
         formData.append("file", file);
@@ -56,8 +56,7 @@ function App() {
         try {
             console.log("Sistem Log: PDF backend'e gönderiliyor...");
 
-            // Şimdilik localhost üzerinden test ediyoruz
-            const response = await fetch("http://localhost:8080/api/resume/upload", {
+            const response = await fetch("https://cvscore-backend-production.up.railway.app/api/resume/upload", {
                 method: "POST",
                 body: formData,
             });
@@ -77,7 +76,7 @@ function App() {
         }
     };
 
-    // Sürükle-bırak güncellendi: Dosya bırakılınca backend testini tetikler
+    // Sürükle-bırak: Dosya bırakılınca canlı backend'i tetikler
     const handleDrop = e => {
         e.preventDefault();
         e.stopPropagation();
@@ -92,7 +91,7 @@ function App() {
         }
     };
 
-    // Dosya seçimi güncellendi: Dosya seçilince backend testini tetikler
+    // Dosya seçimi: Dosya seçilince canlı backend'i tetikler
     const handleFileChange = e => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
