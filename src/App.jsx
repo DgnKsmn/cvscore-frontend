@@ -38,14 +38,6 @@ function App() {
 
     const isLoggedIn = !!localStorage.getItem('cvscore_jwt');
 
-    const generateConsistentScore = keyString => {
-        let hash = 0;
-        for (let i = 0; i < keyString.length; i++) {
-            hash = keyString.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        return Math.abs(hash % 101);
-    };
-
     const handleDrag = e => {
         e.preventDefault();
         e.stopPropagation();
@@ -56,18 +48,59 @@ function App() {
         }
     };
 
+    // Backend'deki yeni PDF okuma servisimizi test eden fonksiyon
+    const uploadCvToBackend = async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            console.log("Sistem Log: PDF backend'e gönderiliyor...");
+
+            // Şimdilik localhost üzerinden test ediyoruz
+            const response = await fetch("http://localhost:8080/api/resume/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+            console.log("Backend'den Gelen Yanıt:", data);
+
+            if (response.ok) {
+                toast.success(`Backend PDF'i başarıyla okudu! Uzunluk: ${data.fullTextLength} karakter`);
+            } else {
+                toast.error("Backend PDF okuma hatası: " + data.error);
+            }
+
+        } catch (error) {
+            console.error("Yükleme hatası:", error);
+            toast.error("Backend sunucusuna ulaşılamadı.");
+        }
+    };
+
+    // Sürükle-bırak güncellendi: Dosya bırakılınca backend testini tetikler
     const handleDrop = e => {
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            setSelectedFile(e.dataTransfer.files[0]);
+            const file = e.dataTransfer.files[0];
+            setSelectedFile(file);
+
+            if (file.type === "application/pdf") {
+                uploadCvToBackend(file);
+            }
         }
     };
 
+    // Dosya seçimi güncellendi: Dosya seçilince backend testini tetikler
     const handleFileChange = e => {
         if (e.target.files && e.target.files[0]) {
-            setSelectedFile(e.target.files[0]);
+            const file = e.target.files[0];
+            setSelectedFile(file);
+
+            if (file.type === "application/pdf") {
+                uploadCvToBackend(file);
+            }
         }
     };
 
@@ -249,48 +282,81 @@ function App() {
         setShowResults(false);
         setIsAnalyzing(true);
 
+        let extractedCvText = "";
         if (selectedFile.type === "application/pdf") {
-            await extractTextFromPdf(selectedFile);
+            extractedCvText = await extractTextFromPdf(selectedFile);
+        } else {
+            extractedCvText = "Sadece PDF okuma desteklenmektedir.";
+            toast.error(extractedCvText);
+            setIsAnalyzing(false);
+            return;
         }
 
-        setTimeout(() => {
-            const stableScore = generateConsistentScore(selectedFile.name + "ATS_SALT_KEY");
-            let fileCheck = 'Geçerli Format (.pdf)';
-            let contactCheck = 'Eksiksiz (Telefon, E-posta, LinkedIn mevcut)';
-            let experienceCheck = 'Geliştirilebilir (Projeler daha detaylı anlatılabilir)';
-            let tempSuggestions = [];
+        try {
+            const token = localStorage.getItem('cvscore_jwt');
+            const response = await fetch("https://cvscore-backend-production.up.railway.app/api/ai/ats-analyze", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ cvText: extractedCvText })
+            });
 
-            if (stableScore >= 80) {
-                tempSuggestions = [
-                    'CV yapınız ATS sistemleri tarafından mükemmel okunuyor.',
-                    'Eğitim ve iletişim bilgilerinizin yerleşimi standartlara tamamen uygun.',
-                    'Projelerinizde kullandığınız teknolojileri kalın (bold) yaparak okunabilirliği artırabilirsiniz.'
-                ];
-            } else if (stableScore >= 55 && stableScore < 80) {
-                tempSuggestions = [
-                    'Eğitim bölümündeki kronolojik sıralamayı yeniden kontrol edin (En yeni okul en üstte olmalı).',
-                    'Projelerinizdeki sorumluluklarınızı maddeler halinde (bullet points) listeleyin.',
-                    'Yetenekler bölümünde çok fazla genel başlık yerine doğrudan teknolojileri vurgulayın.'
-                ];
-            } else {
-                tempSuggestions = [
-                    'CV\'nizde grafik ve ikon kullanımı ATS tarayıcılarının metni okumasını zorlaştırabilir. Daha sade bir şablon deneyin.',
-                    'İletişim bilgilerinizin doğruluğundan ve GitHub profilinizin güncelliğinden emin olun.',
-                    'İş veya proje deneyimlerinizde başardığınız işleri ölçülebilir (sayısal) verilerle destekleyin.'
-                ];
+            if (response.status === 403) {
+                toast.error("Öncelikle hesap oluşturmalısınız veya giriş yapmalısınız.");
+                setActivePage('login');
+                setIsAnalyzing(false);
+                return;
             }
 
+            if (response.status === 402) {
+                setIsAnalyzing(false);
+                setActivePage('premium');
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error("Sunucu hatası: " + response.status);
+            }
+
+            const rawResponse = await response.json();
+            let rawText = rawResponse.candidates[0].content.parts[0].text;
+            let jsonString = rawText.replace(/```json/ig, '').replace(/```/g, '').trim();
+            const finalResult = JSON.parse(jsonString);
+
             setAtsResult({
-                score: stableScore,
-                fileCheck,
-                contactCheck,
-                experienceCheck,
-                suggestions: tempSuggestions
+                score: finalResult.score || 0,
+                fileCheck: finalResult.fileCheck || 'Belirsiz',
+                contactCheck: finalResult.contactCheck || 'Belirsiz',
+                experienceCheck: finalResult.experienceCheck || 'Belirsiz',
+                suggestions: finalResult.suggestions || []
             });
-            sonuclariVeritabaninaKaydet(selectedFile.name, "", 0, stableScore, tempSuggestions.join(" | "));
+
+            sonuclariVeritabaninaKaydet(
+                selectedFile.name,
+                "Bağımsız ATS Analizi",
+                0,
+                finalResult.score || 0,
+                (finalResult.suggestions || []).join(" | ")
+            );
+
             setIsAnalyzing(false);
             setShowResults(true);
-        }, 1200);
+
+        } catch (error) {
+            console.error("Gerçek ATS Analiz Hatası:", error);
+            toast.error("ATS analizi sırasında bir hata oluştu.");
+            setAtsResult({
+                score: 0,
+                fileCheck: 'Hata',
+                contactCheck: 'Hata',
+                experienceCheck: 'Hata',
+                suggestions: ["Sunucu bağlantısı kurulamadı veya AI yanıtı işlenemedi."]
+            });
+            setIsAnalyzing(false);
+            setShowResults(true);
+        }
     };
 
     const getScoreColorHex = score => {

@@ -28,20 +28,27 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
         }
     };
 
-    const fetchRealJobsFromJSearch = async () => {
+    // GÜNCELLENEN KISIM: İstek artık RapidAPI'ye değil, doğrudan güvenli backend'imize gidiyor!
+    const fetchRealJobsFromBackend = async () => {
         try {
-            const url = 'https://jsearch.p.rapidapi.com/search?query=Software%20Developer%20in%20Turkey&page=1&num_pages=10';
+            // İleride bu URL, Railway üzerindeki backend URL'miz olacak.
+            // Şimdilik geliştirme aşaması için localhost kullanıyoruz.
+            const url = 'http://localhost:8080/api/jobs/search?query=Software%20Developer%20in%20Turkey';
+
             const options = {
                 method: 'GET',
                 headers: {
-                    'X-RapidAPI-Key': 'BURAYA_RAPIDAPI_KEY_GELECEK',
-                    'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
+                    'Content-Type': 'application/json',
+                    // Sistemin freemium limitlerini e-posta doğrulaması üzerinden
+                    // güvenle takip edebilmesi için kullanıcı token'ını (JWT) backend'e iletiyoruz.
+                    // 'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             };
 
             const response = await fetch(url, options);
             const result = await response.json();
 
+            // Backend'imizin JSearch'ten alıp bize şeffafça ilettiği JSON verisini işliyoruz
             if (result && result.data && result.data.length > 0) {
                 const realJobs = result.data.map((job, index) => {
                     const title = job.job_title || "Yazılım Uzmanı";
@@ -67,11 +74,12 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                 fallbackToDefaultJobs();
             }
         } catch (error) {
-            console.error("JSearch API Bağlantı Hatası:", error);
+            console.error("Backend JSearch API Bağlantı Hatası:", error);
             fallbackToDefaultJobs();
         }
     };
 
+    // İstediğin 25-100 arası link sayısına uygun olarak 100 adet mock ilan üreten fallback fonksiyonumuz
     const fallbackToDefaultJobs = () => {
         const unvanlar = ["Frontend Developer", "Backend Developer", "Full Stack Engineer", "React Native Developer", "UI/UX Designer"];
         const sirketler = ["TechCorp Global", "StartupLab", "InnoSoft Yazılım", "Digital Art Studio", "NextGen Teknoloji"];
@@ -116,7 +124,8 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
         setIsAnalyzing(true);
         toast.loading("CV'niz yapay zeka ile analiz ediliyor...", { duration: 3500 });
 
-        await fetchRealJobsFromJSearch();
+        // Artık güncellenmiş güvenli backend çağrımızı tetikliyoruz
+        await fetchRealJobsFromBackend();
 
         setTimeout(() => {
             setIsAnalyzing(false);
@@ -226,7 +235,6 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                 ) : (
                     <div className="w-full space-y-6">
 
-                        {/* BAŞLIK VE YAZDIRMA BUTONU ALANI */}
                         <div className="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-center gap-4">
                             <h3 className="text-xl font-bold text-white">Önerilen İş İlanları ({displayedJobs.length})</h3>
 
@@ -246,11 +254,6 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                             </div>
                         </div>
 
-                        {/*
-                          DİNAMİK LİSTE ALANI:
-                          print:max-h-none ve print:overflow-visible sınıfları ile yazdırırken kaydırma çubuğunu iptal ediyoruz,
-                          böylece tüm liste PDF'te sorunsuz bir şekilde aşağı doğru uzuyor.
-                        */}
                         <div className="space-y-4 text-left max-h-[600px] overflow-y-auto pr-2 custom-scrollbar print:max-h-none print:overflow-visible print:pr-0 print:h-auto">
                             {displayedJobs.map((job, idx) => {
                                 const isExpanded = expandedJobIndex === idx;
@@ -321,7 +324,6 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                             })}
                         </div>
 
-                        {/* İŞLEM BUTONLARI */}
                         <div className="pt-4 flex flex-wrap justify-center gap-4 print:hidden">
                             <button
                                 onClick={handleSuggestMore}
