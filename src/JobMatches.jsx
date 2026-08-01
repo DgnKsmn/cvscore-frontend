@@ -12,10 +12,9 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
     const [displayedJobs, setDisplayedJobs] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    // HANGİ İLANIN DETAYININ AÇIK OLDUĞUNU TUTAN STATE
     const [expandedJobIndex, setExpandedJobIndex] = useState(null);
 
-    const handleFileChange = (e) => {
+    const handleFileChange = e => {
         const file = e.target.files[0];
         if (file) {
             if (file.type === "application/pdf") {
@@ -149,12 +148,11 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
         setExpandedJobIndex(null);
     };
 
-    // İlan kartına tıklanınca açma/kapama fonksiyonu
-    const toggleJobExpand = (index) => {
+    const toggleJobExpand = index => {
         if (expandedJobIndex === index) {
-            setExpandedJobIndex(null); // Zaten açıksa kapat
+            setExpandedJobIndex(null);
         } else {
-            setExpandedJobIndex(index); // Değilse aç
+            setExpandedJobIndex(index);
         }
     };
 
@@ -175,9 +173,7 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                             {isAnalyzing ? "Yapay Zeka Taraması Yapılıyor" : "Henüz Bir Analiz Başlatmadınız"}
                         </h2>
                         <p className="text-slate-400 max-w-lg mb-8 text-sm leading-relaxed">
-                            {isAnalyzing
-                                ? "Küresel iş havuzundan kariyerinize en uygun aktif ilanlar filtreleniyor ve CV skorunuz hesaplanıyor..."
-                                : ""}
+                            {isAnalyzing && "Küresel iş havuzundan kariyerinize en uygun aktif ilanlar filtreleniyor ve CV skorunuz hesaplanıyor..."}
                         </p>
 
                         {!isAnalyzing && (
@@ -246,7 +242,6 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                                         key={idx}
                                         className={`bg-slate-950 border transition-all duration-300 rounded-xl overflow-hidden ${isExpanded ? 'border-blue-500/50 shadow-lg shadow-blue-500/10' : 'border-slate-800 hover:border-slate-600'}`}
                                     >
-                                        {/* İLAN BAŞLIĞI - TIKLANABİLİR ALAN */}
                                         <div
                                             className="p-4 flex flex-col md:flex-row items-center justify-between cursor-pointer"
                                             onClick={() => toggleJobExpand(idx)}
@@ -263,30 +258,26 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                                                     href={job.link}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    onClick={(e) => e.stopPropagation()} // Tıklamanın akordiyonu tetiklemesini engeller
+                                                    onClick={e => e.stopPropagation()}
                                                     className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg font-semibold transition-colors"
                                                 >
                                                     İlana Git
                                                 </a>
-                                                {/* Açma / Kapama İkonu */}
                                                 <span className="text-slate-400 ml-2">
                                                     {isExpanded ? '▲' : '▼'}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        {/* AŞAĞI DOĞRU AÇILAN RAPOR DETAYI */}
                                         {isExpanded && (
                                             <div className="bg-slate-900 border-t border-slate-800 p-6 transition-all">
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                    {/* Skor Kartı */}
                                                     <div className="bg-[#0f172a] p-5 rounded-xl border border-slate-800 flex flex-col items-center justify-center">
                                                         <p className="text-slate-400 text-sm mb-3">ATS Uyum Skoru</p>
                                                         <p className="text-5xl font-bold text-emerald-400">%{job.matchScore}</p>
                                                         <p className="text-xs text-slate-500 mt-3">Sektör ortalamasının üzerinde</p>
                                                     </div>
 
-                                                    {/* Güçlü Yönler */}
                                                     <div className="bg-[#0f172a] p-5 rounded-xl border border-slate-800">
                                                         <p className="text-emerald-400 text-sm font-bold mb-3">Güçlü Yönleriniz</p>
                                                         <ul className="text-slate-300 text-sm space-y-2 list-disc list-inside">
@@ -296,7 +287,6 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                                                         </ul>
                                                     </div>
 
-                                                    {/* Gelişim Alanları */}
                                                     <div className="bg-[#0f172a] p-5 rounded-xl border border-slate-800">
                                                         <p className="text-amber-400 text-sm font-bold mb-3">Gelişim Alanları</p>
                                                         <ul className="text-slate-300 text-sm space-y-2 list-disc list-inside">

@@ -20,7 +20,6 @@ function App() {
     const [showResults, setShowResults] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-    // Uyarı kutusunun görünürlüğünü kontrol eden state
     const [showAuthWarning, setShowAuthWarning] = useState(false);
 
     const [analysisResult, setAnalysisResult] = useState({
@@ -39,7 +38,7 @@ function App() {
 
     const isLoggedIn = !!localStorage.getItem('cvscore_jwt');
 
-    const generateConsistentScore = (keyString) => {
+    const generateConsistentScore = keyString => {
         let hash = 0;
         for (let i = 0; i < keyString.length; i++) {
             hash = keyString.charCodeAt(i) + ((hash << 5) - hash);
@@ -47,7 +46,7 @@ function App() {
         return Math.abs(hash % 101);
     };
 
-    const handleDrag = (e) => {
+    const handleDrag = e => {
         e.preventDefault();
         e.stopPropagation();
         if (e.type === "dragenter" || e.type === "dragover") {
@@ -57,7 +56,7 @@ function App() {
         }
     };
 
-    const handleDrop = (e) => {
+    const handleDrop = e => {
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
@@ -66,13 +65,13 @@ function App() {
         }
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = e => {
         if (e.target.files && e.target.files[0]) {
             setSelectedFile(e.target.files[0]);
         }
     };
 
-    const extractTextFromPdf = async (file) => {
+    const extractTextFromPdf = async file => {
         if (!file || file.type !== "application/pdf") {
             return "PDF formatında bir dosya yüklenmediği için metin okunamadı.";
         }
@@ -198,7 +197,7 @@ function App() {
             extractedCvText = "Sadece PDF okuma desteklenmektedir. Lütfen bir PDF yükleyin.";
         }
 
-        const jobContext = jobDescription ? jobDescription : `İlan Linki: ${jobLink}`;
+        const jobContext = jobDescription || `İlan Linki: ${jobLink}`;
         const aiResult = await analyzeWithGemini(extractedCvText, jobContext);
 
         if (aiResult === "AUTH_REQUIRED") {
@@ -294,7 +293,7 @@ function App() {
         }, 1200);
     };
 
-    const getScoreColorHex = (score) => {
+    const getScoreColorHex = score => {
         if (score < 50) return '#f43f5e';
         if (score >= 50 && score < 70) return '#f59e0b';
         if (score >= 70 && score < 90) return '#34d399';
@@ -472,7 +471,7 @@ function App() {
                                     <input
                                         type="text"
                                         value={jobLink}
-                                        onChange={(e) => setJobLink(e.target.value)}
+                                        onChange={e => setJobLink(e.target.value)}
                                         placeholder="Linkedin, Kariyer.net vb. ilan linkini yapıştırın"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
                                     />
@@ -485,7 +484,7 @@ function App() {
                                     </div>
                                     <textarea
                                         value={jobDescription}
-                                        onChange={(e) => setJobDescription(e.target.value)}
+                                        onChange={e => setJobDescription(e.target.value)}
                                         placeholder="İlandaki teknik gereksinimleri doğrudan buraya yapıştırabilirsiniz..."
                                         rows="4"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-emerald-500 transition-colors resize-none font-sans leading-relaxed"
@@ -516,7 +515,6 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* UYARI KUTUSU ARTIK SADECE BUTONA BASILINCA ÇIKACAK */}
                             {!isLoggedIn && showAuthWarning && (
                                 <div
                                     onClick={() => setActivePage('login')}
@@ -658,7 +656,6 @@ function App() {
                                 </div>
                             </div>
 
-                            {/* UYARI KUTUSU ARTIK SADECE BUTONA BASILINCA ÇIKACAK */}
                             {!isLoggedIn && showAuthWarning && (
                                 <div
                                     onClick={() => setActivePage('login')}
