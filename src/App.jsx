@@ -404,7 +404,7 @@ function App() {
                 )}
 
                 {activePage === 'ai-jobs' && (
-                    <div className="w-full max-w-6xl mx-auto print:hidden">
+                    <div className="w-full max-w-6xl mx-auto print:block">
                         <JobMatches isLoggedIn={isLoggedIn} />
                     </div>
                 )}
