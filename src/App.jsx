@@ -4,33 +4,28 @@ import * as pdfjsLib from 'pdfjs-dist';
 import Register from './Register';
 import Login from './Login';
 import Premium from './Premium';
-import JobMatches from './JobMatches'; // Yeni Yapay Zeka İş Bulma Sayfası Eklendi
-import { Toaster, toast } from 'react-hot-toast'; // Tost Bildirimleri Eklendi
+import JobMatches from './JobMatches';
+import { Toaster, toast } from 'react-hot-toast';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 function App() {
-    // Sayfa yönetimi: 'home', 'job-match', 'ats-check', 'register', 'login', 'premium', 'ai-jobs'
     const [activePage, setActivePage] = useState('home');
 
-    // Ortak Form Durumları
     const [jobLink, setJobLink] = useState('');
     const [jobDescription, setJobDescription] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
     const [dragActive, setDragActive] = useState(false);
 
-    // Analiz Durumları
     const [showResults, setShowResults] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-    // 1. Ekran (İş Uyumu) Sonuçları
     const [analysisResult, setAnalysisResult] = useState({
         score: 0,
         missingSkills: [],
         improvements: []
     });
 
-    // 2. Ekran (ATS Kontrolü) Sonuçları
     const [atsResult, setAtsResult] = useState({
         score: 0,
         fileCheck: '',
@@ -39,7 +34,6 @@ function App() {
         suggestions: []
     });
 
-    // MERKEZİ GİRİŞ KONTROLÜ
     const isLoggedIn = !!localStorage.getItem('cvscore_jwt');
 
     const generateConsistentScore = (keyString) => {
@@ -175,8 +169,7 @@ function App() {
     const handleCalculateMatch = async () => {
         if (!isLoggedIn) {
             toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
-            setActivePage('login');
-            return;
+            return; // setActivePage('login') kaldırıldı, sadece uyarı verecek
         }
 
         if (!jobLink && !jobDescription) {
@@ -236,8 +229,7 @@ function App() {
     const handleAtsCheck = async () => {
         if (!isLoggedIn) {
             toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
-            setActivePage('login');
-            return;
+            return; // setActivePage('login') kaldırıldı, sadece uyarı verecek
         }
 
         if (!selectedFile) {
@@ -321,13 +313,11 @@ function App() {
         toast.success("Başarıyla çıkış yapıldı! Görüşmek üzere.");
         setTimeout(() => {
             window.location.href = "/";
-        }, 1500); // Kullanıcı bildirimi görebilsin diye yönlendirme öncesi minik bir gecikme ekledim
+        }, 1500);
     };
 
     return (
         <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between font-sans">
-
-            {/* Tost Bildirimleri İçin Konteyner - YAZDIRILIRKEN GİZLENECEK */}
             <div className="print:hidden">
                 <Toaster
                     position="top-right"
@@ -343,7 +333,6 @@ function App() {
                 />
             </div>
 
-            {/* ÜST NAVBAR - YAZDIRILIRKEN GİZLENECEK */}
             <header className="print:hidden border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
                     <div
@@ -353,7 +342,6 @@ function App() {
                         <img src={logo} alt="CVSCORE Logo" className="h-12 w-auto" />
                     </div>
 
-                    {/* SAĞ ÜST BUTONLAR */}
                     <div className="flex gap-3">
                         {!isLoggedIn ? (
                             <>
@@ -387,9 +375,7 @@ function App() {
                 </div>
             </header>
 
-            {/* ANA İÇERİK */}
             <main className="flex-grow flex items-center justify-center p-6 w-full max-w-6xl mx-auto">
-
                 {activePage === 'register' && (
                     <div className="w-full max-w-md mx-auto print:hidden">
                         <Register setActivePage={setActivePage} />
@@ -408,7 +394,6 @@ function App() {
                     </div>
                 )}
 
-                {/* YENİ SAYFA BAĞLANTISI VE PROP AKTARIMI */}
                 {activePage === 'ai-jobs' && (
                     <div className="w-full max-w-6xl mx-auto print:hidden">
                         <JobMatches isLoggedIn={isLoggedIn} />
@@ -426,7 +411,6 @@ function App() {
                             </p>
                         </div>
 
-                        {/* GRID YAPISI 3 KOLONA ÇIKARILDI */}
                         <div className="grid md:grid-cols-3 gap-6 pt-4">
                             <button
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
@@ -450,7 +434,6 @@ function App() {
                                 </div>
                             </button>
 
-                            {/* YENİ YAPAY ZEKA İŞ BULMA BUTONU */}
                             <button
                                 onClick={() => { setActivePage('ai-jobs'); handleReset(); }}
                                 className="group relative bg-slate-900 border border-slate-800 hover:border-indigo-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.1)] flex flex-col justify-between min-h-[220px]"
@@ -466,10 +449,7 @@ function App() {
                 )}
 
                 {activePage === 'job-match' && (
-                    // YAZDIRMA SIRASINDA GRID'İ BOZUP ALT ALTA DİZER, BÖYLECE SAĞ PANEL TAM EKRAN OLUR (print:block)
                     <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start print:block">
-
-                        {/* SOL PANEL - YAZDIRILIRKEN GİZLENECEK (print:hidden) */}
                         <div className="print:hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
                             <div className="space-y-6">
                                 <div className="border-b border-slate-800 pb-4">
@@ -526,6 +506,16 @@ function App() {
                                 </div>
                             </div>
 
+                            {/* KULLANICI GİRİŞ YAPMADIYSA GÖRÜNECEK KIRMIZI UYARI KUTUSU */}
+                            {!isLoggedIn && (
+                                <div
+                                    onClick={() => setActivePage('login')}
+                                    className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mt-4 w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
+                                >
+                                    Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-3 gap-4 pt-6">
                                 <button onClick={handleReset} className="bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-colors">
                                     Sıfırla
@@ -536,7 +526,6 @@ function App() {
                             </div>
                         </div>
 
-                        {/* SAĞ PANEL (SONUÇLAR) - YAZDIRIRKEN ÇERÇEVEYİ TEMİZLER */}
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px] print:border-none print:shadow-none">
                             {!showResults ? (
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
@@ -559,7 +548,6 @@ function App() {
                                     <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
                                         <h3 className="text-xl font-bold text-slate-100">Analiz Sonucu</h3>
 
-                                        {/* YAZDIR BUTONU BURAYA EKLENDİ */}
                                         <div className="flex items-center gap-3">
                                             <button
                                                 onClick={() => window.print()}
@@ -628,10 +616,7 @@ function App() {
                 )}
 
                 {activePage === 'ats-check' && (
-                    // YAZDIRMA SIRASINDA GRID'İ BOZUP ALT ALTA DİZER (print:block)
                     <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start print:block">
-
-                        {/* SOL PANEL - YAZDIRILIRKEN GİZLENECEK (print:hidden) */}
                         <div className="print:hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
                             <div className="space-y-6">
                                 <div className="border-b border-slate-800 pb-4">
@@ -663,6 +648,16 @@ function App() {
                                 </div>
                             </div>
 
+                            {/* KULLANICI GİRİŞ YAPMADIYSA GÖRÜNECEK KIRMIZI UYARI KUTUSU */}
+                            {!isLoggedIn && (
+                                <div
+                                    onClick={() => setActivePage('login')}
+                                    className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mt-4 w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
+                                >
+                                    Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-3 gap-4 pt-6">
                                 <button onClick={handleReset} className="bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-colors">
                                     Sıfırla
@@ -673,7 +668,6 @@ function App() {
                             </div>
                         </div>
 
-                        {/* SAĞ PANEL (SONUÇLAR) - YAZDIRIRKEN ÇERÇEVEYİ TEMİZLER */}
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px] print:border-none print:shadow-none">
                             {!showResults ? (
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
@@ -696,7 +690,6 @@ function App() {
                                     <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
                                         <h3 className="text-xl font-bold text-slate-100">Genel ATS Analizi</h3>
 
-                                        {/* YAZDIR BUTONU BURAYA EKLENDİ */}
                                         <div className="flex items-center gap-3">
                                             <button
                                                 onClick={() => window.print()}
@@ -771,7 +764,6 @@ function App() {
 
             </main>
 
-            {/* ALT BİLGİ - YAZDIRILIRKEN GİZLENECEK */}
             <footer className="print:hidden border-t border-slate-900 bg-slate-950/80 py-4 text-center text-xs text-slate-600">
                 © 2026 CVSCORE - Yapay Zeka Destekli CV Analiz Platformu
             </footer>

@@ -23,7 +23,7 @@ const Login = ({ setActivePage }) => {
                 localStorage.setItem('cvscore_jwt', data.token);
 
                 // Eski çirkin alert() yerine modern bildirim eklendi
-                toast.success("Giriş başarılı! Yönlendiriliyorsunuz...");
+                toast.success("Giriş başarılı! ");
                 setActivePage('home');
             } else {
                 // Sayfa içi div yerine sağ üstten gelen şık hata mesajı
