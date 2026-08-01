@@ -18,7 +18,7 @@ const JobMatches = () => {
         <div className="min-h-screen bg-gray-900 text-white p-8">
             <h1 className="text-3xl font-bold mb-6">Yapay Zeka İş Eşleşmeleri</h1>
             <p className="text-gray-400 mb-8">
-                Sizin için en uygun 25 ile 100 arası ilanın linklerini bulmak için analizi başlatın.
+                Sizin için en uygun 5 ile 10 arası ilanın linklerini bulmak için analizi başlatın.
             </p>
 
             {/* Veri yoksa ve arama yapılmıyorsa gösterilecek GİRİŞ EKRANI */}
@@ -27,7 +27,7 @@ const JobMatches = () => {
                     <div className="text-6xl opacity-30 mb-6">🔍</div>
                     <h3 className="text-xl font-semibold text-gray-200 mb-2">Henüz Bir Analiz Başlatmadınız</h3>
                     <p className="text-sm text-gray-400 mb-8 max-w-sm">
-                        Sisteme kayıtlı CV verileriniz ve hedefleriniz doğrultusunda uygun 25 ile 100 arası iş ilanı linkinin taranması için motoru çalıştırın.
+                        Sisteme kayıtlı CV verileriniz ve hedefleriniz doğrultusunda uygun 5 ile 10 arası iş ilanı linkinin taranması için motoru çalıştırın.
                     </p>
                     <button
                         onClick={handleSearch}
