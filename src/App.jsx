@@ -74,9 +74,10 @@ function App() {
             console.log("Backend'den Gelen Yanıt:", data);
 
             if (response.ok) {
-                toast.success(`Backend PDF'i başarıyla okudu! Uzunluk: ${data.fullTextLength} karakter`);
+                // İŞTE SADECE BU SATIR KULLANICI DOSTU HALE GELDİ:
+                toast.success("CV'niz başarıyla sisteme yüklendi!");
             } else {
-                toast.error("Backend PDF okuma hatası: " + (data.error || "Bilinmeyen hata"));
+                toast.error("CV yüklenirken bir sorun oluştu: " + (data.error || "Lütfen tekrar deneyin."));
             }
 
         } catch (error) {
@@ -84,7 +85,6 @@ function App() {
             toast.error("Sunucu bağlantısı kurulamadı.");
         }
     };
-
     const handleDrop = e => {
         e.preventDefault();
         e.stopPropagation();
