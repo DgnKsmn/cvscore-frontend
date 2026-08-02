@@ -24,6 +24,8 @@ function App() {
     const [jobKeyword, setJobKeyword] = useState('');
     const [jobList, setJobList] = useState([]);
     const [isJobSearching, setIsJobSearching] = useState(false);
+    // YENİ: Aramanın bitip bitmediğini takip etmek için
+    const [hasSearchedJobs, setHasSearchedJobs] = useState(false);
 
     const [analysisResult, setAnalysisResult] = useState({
         score: 0,
@@ -206,6 +208,7 @@ function App() {
         setShowAuthWarning(false);
         setJobKeyword('');
         setJobList([]);
+        setHasSearchedJobs(false); // Sıfırlamada bunu da temizliyoruz
     };
 
     const handleCalculateMatch = async () => {
@@ -384,6 +387,7 @@ function App() {
         }
 
         setIsJobSearching(true);
+        setHasSearchedJobs(false); // Yeni arama başladığında durumu sıfırla
         setJobList([]);
 
         try {
@@ -408,6 +412,7 @@ function App() {
 
             const data = await response.json();
             setJobList(data);
+            setHasSearchedJobs(true); // Veri boş gelse bile arama işlemi başarıyla tamamlandı
 
         } catch (error) {
             console.error("İlan Arama Hatası:", error);
@@ -527,7 +532,6 @@ function App() {
                     </div>
                 )}
 
-                {/* YENİDEN DÜZENLENEN, 2 SÜTUNLU VE CV YÜKLEME ODAKLI YAPAY ZEKA İLE İŞ BUL EKRANI */}
                 {activePage === 'ai-jobs' && (
                     <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start print:block">
 
@@ -595,21 +599,25 @@ function App() {
                             </div>
                         </div>
 
-                        {/* SAĞ PANEL */}
+                        {/* SAĞ PANEL GÜNCELLENDİ (Empty state mantığı) */}
                         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px] print:border-none print:shadow-none">
-                            {!isJobSearching && jobList.length === 0 ? (
+
+                            {!hasSearchedJobs && !isJobSearching ? (
+                                // 1. Başlangıç Ekranı
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
                                     <div className="text-5xl opacity-50">💼</div>
                                     <h3 className="text-lg font-bold text-slate-400">Sizin İçin Uygun İlanlar</h3>
                                     <p className="text-sm text-slate-500 max-w-xs">CV'nizi yükleyip taramayı başlattığınızda gerçek LinkedIn ilan linkleri burada listelenecektir.</p>
                                 </div>
                             ) : isJobSearching ? (
+                                // 2. Yükleniyor Ekranı
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
                                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-500"></div>
                                     <h3 className="text-lg font-bold text-slate-300">CV ve Pozisyon Analizi</h3>
                                     <p className="text-sm text-slate-500 max-w-xs">En uygun gerçek ilanlar filtreleniyor...</p>
                                 </div>
-                            ) : (
+                            ) : jobList.length > 0 ? (
+                                // 3. Sonuç Bulundu Ekranı
                                 <div className="space-y-6">
                                     <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
                                         <h3 className="text-xl font-bold text-slate-100">
@@ -635,7 +643,15 @@ function App() {
                                         ))}
                                     </div>
                                 </div>
+                            ) : (
+                                // 4. Sonuç Bulunamadı Ekranı (Eksik Olan Kısım Buydu)
+                                <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
+                                    <div className="text-5xl opacity-50">🔍</div>
+                                    <h3 className="text-lg font-bold text-slate-400">İlan Bulunamadı</h3>
+                                    <p className="text-sm text-slate-500 max-w-xs">Bu arama kriterine uygun aktif, tıklanabilir bir LinkedIn ilanı bulunamadı. Aramanızı örneğin sadece "Bilgisayar Mühendisi" olarak güncelleyerek tekrar deneyebilirsiniz.</p>
+                                </div>
                             )}
+
                         </div>
                     </div>
                 )}
