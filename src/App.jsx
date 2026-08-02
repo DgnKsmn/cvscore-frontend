@@ -20,7 +20,7 @@ function App() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [showAuthWarning, setShowAuthWarning] = useState(false);
 
-    // Yapay Zeka İş Bulma Modülü İçin Yeni State'ler (2. Yöntem Entegrasyonu)
+    // Yapay Zeka İş Bulma Modülü İçin State'ler
     const [jobKeyword, setJobKeyword] = useState('');
     const [jobList, setJobList] = useState([]);
     const [isJobSearching, setIsJobSearching] = useState(false);
@@ -204,8 +204,6 @@ function App() {
         setSelectedFile(null);
         setShowResults(false);
         setShowAuthWarning(false);
-
-        // Yeni İş Bulma Modülü İçin Sıfırlamalar
         setJobKeyword('');
         setJobList([]);
     };
@@ -367,23 +365,26 @@ function App() {
         }
     };
 
-    // Yeni: Yapay Zeka ile İş Bulma Fonksiyonu
     const handleJobSearch = async () => {
         if (!isLoggedIn) {
             setShowAuthWarning(true);
             toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
             return;
         }
-
         setShowAuthWarning(false);
 
+        if (!selectedFile) {
+            toast.error("Lütfen ilan aramadan önce CV'nizi yükleyin.");
+            return;
+        }
+
         if (!jobKeyword.trim()) {
-            toast.error("Lütfen aramak istediğiniz pozisyonu girin.");
+            toast.error("Lütfen aranacak hedef pozisyonu girin.");
             return;
         }
 
         setIsJobSearching(true);
-        setJobList([]); // Yeni aramada önceki listeyi temizle
+        setJobList([]);
 
         try {
             const token = localStorage.getItem('cvscore_jwt');
@@ -395,17 +396,16 @@ function App() {
             });
 
             if (response.status === 403) {
-                 toast.error("Oturumunuz süresi dolmuş veya geçersiz. Lütfen tekrar giriş yapın.");
-                 setActivePage('login');
-                 setIsJobSearching(false);
-                 return;
+                toast.error("Oturumunuz süresi dolmuş veya geçersiz. Lütfen tekrar giriş yapın.");
+                setActivePage('login');
+                setIsJobSearching(false);
+                return;
             }
 
             if (!response.ok) {
-                 throw new Error("İlanlar çekilirken sunucu kaynaklı bir hata oluştu.");
+                throw new Error("İlanlar çekilirken sunucu kaynaklı bir hata oluştu.");
             }
 
-            // Backend'den pırıl pırıl bir Array geliyor (List<String>)
             const data = await response.json();
             setJobList(data);
 
@@ -527,89 +527,115 @@ function App() {
                     </div>
                 )}
 
-                {/* DOĞRUDAN ENTEGRE EDİLEN YENİ İŞ BULMA MODÜLÜ */}
+                {/* YENİDEN DÜZENLENEN, 2 SÜTUNLU VE CV YÜKLEME ODAKLI YAPAY ZEKA İLE İŞ BUL EKRANI */}
                 {activePage === 'ai-jobs' && (
-                    <div className="w-full max-w-4xl mx-auto grid gap-8 items-start print:block">
-                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl space-y-8">
+                    <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start print:block">
 
-                            <div className="border-b border-slate-800 pb-4">
-                                <h2 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
-                                    <span className="text-indigo-400">✨</span> YAPAY ZEKA İLE İŞ BUL
-                                </h2>
-                                <p className="text-slate-400 mt-2">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
-                            </div>
+                        {/* SOL PANEL */}
+                        <div className="print:hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
+                            <div className="space-y-6">
+                                <div className="border-b border-slate-800 pb-4">
+                                    <h2 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
+                                        <span className="text-indigo-400">✨</span> YAPAY ZEKA İLE İŞ BUL
+                                    </h2>
+                                    <p className="text-sm text-slate-400 mt-1">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
+                                </div>
 
-                            <div className="space-y-4">
-                                <label className="text-sm font-semibold text-slate-300 block">Aradığınız Pozisyon</label>
-                                <div className="flex gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-300 block">CV Dosyası (.pdf)</label>
+                                    <div
+                                        onDragEnter={handleDrag}
+                                        onDragOver={handleDrag}
+                                        onDragLeave={handleDrag}
+                                        onDrop={handleDrop}
+                                        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+                                            dragActive ? 'border-indigo-500 bg-indigo-500/5' : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                                        }`}
+                                    >
+                                        <input type="file" id="file-upload-jobs" accept=".pdf" onChange={handleFileChange} className="hidden" />
+                                        <label htmlFor="file-upload-jobs" className="cursor-pointer space-y-3 block">
+                                            <div className="text-4xl">📄</div>
+                                            {selectedFile ? (
+                                                <p className="text-indigo-400 font-semibold text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
+                                            ) : (
+                                                <p className="text-slate-300 text-sm">İş eşleştirmesi için CV'nizi seçin veya sürükleyin</p>
+                                            )}
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-300 block">Aradığınız Pozisyon</label>
                                     <input
                                         type="text"
                                         value={jobKeyword}
                                         onChange={e => setJobKeyword(e.target.value)}
-                                        onKeyDown={e => e.key === 'Enter' && handleJobSearch()}
-                                        placeholder="Örn: Java Spring Boot, React Frontend Developer..."
-                                        className="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                                        placeholder="Örn: Backend Developer"
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
                                     />
-                                    <button
-                                        onClick={handleJobSearch}
-                                        disabled={isJobSearching}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-50 whitespace-nowrap"
-                                    >
-                                        {isJobSearching ? 'Taranıyor...' : 'İlan Bul'}
-                                    </button>
                                 </div>
-
-                                {!isLoggedIn && showAuthWarning && (
-                                    <div
-                                        onClick={() => setActivePage('login')}
-                                        className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mt-4 w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
-                                    >
-                                        Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
-                                    </div>
-                                )}
                             </div>
 
-                            <div className="pt-4 mt-6 border-t border-slate-800 min-h-[300px]">
-                                {isJobSearching ? (
-                                    <div className="flex flex-col items-center justify-center py-16 space-y-4">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-500"></div>
-                                        <p className="text-slate-400 text-sm">Gerçek LinkedIn ilanları taranıyor ve ayıklanıyor...</p>
-                                    </div>
-                                ) : jobList.length > 0 ? (
-                                    <div className="space-y-4">
-                                        <h3 className="text-lg font-bold text-slate-200 mb-4">
-                                            Sizin İçin Bulunan İlanlar <span className="text-indigo-400">({jobList.length})</span>
+                            {!isLoggedIn && showAuthWarning && (
+                                <div
+                                    onClick={() => setActivePage('login')}
+                                    className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mt-4 w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
+                                >
+                                    Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-3 gap-4 pt-6">
+                                <button onClick={handleReset} className="bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-colors">
+                                    Sıfırla
+                                </button>
+                                <button onClick={handleJobSearch} disabled={isJobSearching} className="col-span-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50">
+                                    {isJobSearching ? "Aranıyor..." : "İlan Bul"}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* SAĞ PANEL */}
+                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px] print:border-none print:shadow-none">
+                            {!isJobSearching && jobList.length === 0 ? (
+                                <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
+                                    <div className="text-5xl opacity-50">💼</div>
+                                    <h3 className="text-lg font-bold text-slate-400">Sizin İçin Uygun İlanlar</h3>
+                                    <p className="text-sm text-slate-500 max-w-xs">CV'nizi yükleyip taramayı başlattığınızda gerçek LinkedIn ilan linkleri burada listelenecektir.</p>
+                                </div>
+                            ) : isJobSearching ? (
+                                <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-500"></div>
+                                    <h3 className="text-lg font-bold text-slate-300">CV ve Pozisyon Analizi</h3>
+                                    <p className="text-sm text-slate-500 max-w-xs">En uygun gerçek ilanlar filtreleniyor...</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
+                                        <h3 className="text-xl font-bold text-slate-100">
+                                            Bulunan İlanlar <span className="text-indigo-400">({jobList.length})</span>
                                         </h3>
-                                        <ul className="space-y-3">
-                                            {jobList.map((link, index) => (
-                                                <li key={index}>
-                                                    <a
-                                                        href={link}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center justify-between p-4 bg-slate-950/50 border border-slate-800 rounded-xl hover:border-[#0a66c2]/50 hover:bg-slate-900 transition-all group"
-                                                    >
-                                                        <span className="font-medium text-slate-300 group-hover:text-white flex items-center gap-3">
-                                                            <span className="text-2xl">💼</span> LinkedIn İlanı {index + 1}
-                                                        </span>
-                                                        <span className="text-[#0a66c2] bg-[#0a66c2]/10 px-5 py-2 rounded-lg font-bold text-sm group-hover:bg-[#0a66c2] group-hover:text-white transition-colors">
-                                                            İlana Git ↗
-                                                        </span>
-                                                    </a>
-                                                </li>
-                                            ))}
-                                        </ul>
                                     </div>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center py-16 opacity-50">
-                                        <div className="text-6xl mb-4">🌐</div>
-                                        <p className="text-sm text-slate-400 max-w-md text-center">
-                                            Arama yaptığınızda halüsinasyonsuz, %100 çalışan ve doğrudan tıklanabilir gerçek LinkedIn başvuru bağlantıları burada listelenecektir.
-                                        </p>
+                                    <div className="overflow-y-auto max-h-[400px] pr-2 space-y-3 custom-scrollbar">
+                                        {jobList.map((link, index) => (
+                                            <a
+                                                key={index}
+                                                href={link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center justify-between p-4 bg-slate-950/50 border border-slate-800 rounded-xl hover:border-[#0a66c2]/50 hover:bg-slate-900 transition-all group"
+                                            >
+                                                <span className="font-medium text-slate-300 group-hover:text-white flex items-center gap-3 text-sm">
+                                                    <span className="text-xl">🔗</span> LinkedIn İlanı {index + 1}
+                                                </span>
+                                                <span className="text-[#0a66c2] bg-[#0a66c2]/10 px-4 py-1.5 rounded-lg font-bold text-xs group-hover:bg-[#0a66c2] group-hover:text-white transition-colors">
+                                                    İlana Git ↗
+                                                </span>
+                                            </a>
+                                        ))}
                                     </div>
-                                )}
-                            </div>
-
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
