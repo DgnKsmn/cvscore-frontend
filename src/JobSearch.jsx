@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-function JobSearchEngine({ isLoggedIn, setActivePage }) {
+const JobSearch = ({ isLoggedIn, setActivePage }) => {
     const [jobKeyword, setJobKeyword] = useState('');
     const [jobList, setJobList] = useState([]);
     const [isJobSearching, setIsJobSearching] = useState(false);
@@ -170,6 +170,6 @@ function JobSearchEngine({ isLoggedIn, setActivePage }) {
             )}
         </div>
     );
-}
+};
 
-export default JobSearchEngine;
+export default JobSearch;
