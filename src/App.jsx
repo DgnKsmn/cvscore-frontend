@@ -485,11 +485,12 @@ function App() {
         }
     };
 
+    // TAMAMEN KIRMIZI-TURUNCU PALETİNE GEÇİRİLMİŞ SKOR RENKLERİ
     const getScoreColorHex = score => {
-        if (score < 50) return '#f43f5e';
-        if (score >= 50 && score < 70) return '#f59e0b';
-        if (score >= 70 && score < 90) return '#34d399';
-        return '#10b981';
+        if (score < 50) return '#b91c1c'; // Koyu Kırmızı (red-700)
+        if (score >= 50 && score < 70) return '#ea580c'; // Koyu Turuncu (orange-600)
+        if (score >= 70 && score < 90) return '#f97316'; // Turuncu (orange-500)
+        return '#fb923c'; // Açık Turuncu (orange-400)
     };
 
     const radius = 54;
@@ -620,13 +621,17 @@ function App() {
 
                         <div className="text-center space-y-2 w-full mt-4">
                             <h2 className="text-3xl font-bold text-slate-100 flex items-center justify-center gap-3">
-                                <span className="text-orange-500">✨</span> GELİŞMİŞ İŞ BULMA MOTORU
+                                <span className="text-orange-500">
+                                    <svg className="w-8 h-8 inline" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.5-6.2 4.5 2.4-7.6L2 9.6h7.6z"/></svg>
+                                </span> GELİŞMİŞ İŞ BULMA MOTORU
                             </h2>
                             <p className="text-stone-400 text-sm">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
                         </div>
 
                         <div className="w-full relative bg-[#160604]/80 border border-orange-900/40 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.1)] focus-within:border-orange-500 transition-colors flex items-center p-2 backdrop-blur-sm">
-                            <div className="pl-4 text-2xl opacity-50">🔍</div>
+                            <div className="pl-4 text-2xl opacity-50 text-orange-500">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
                             <input
                                 type="text"
                                 value={jobKeyword}
@@ -679,7 +684,9 @@ function App() {
                                                     className="flex items-center justify-between p-4 bg-[#0a0302] border border-orange-900/20 rounded-xl hover:border-orange-500/50 hover:bg-[#1f0a07] transition-all group shadow-sm"
                                                 >
                                                     <span className="font-medium text-stone-300 group-hover:text-white flex items-center gap-3 text-sm truncate pr-4">
-                                                        <span className="text-xl shrink-0">🔗</span> LinkedIn İlanı {index + 1}
+                                                        <span className="text-orange-500 shrink-0">
+                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                                        </span> LinkedIn İlanı {index + 1}
                                                     </span>
                                                     <span className="text-orange-400 bg-orange-900/20 px-4 py-1.5 rounded-lg font-bold text-xs shrink-0 group-hover:bg-orange-500 group-hover:text-white transition-colors border border-orange-900/50">
                                                         İlana Git ↗
@@ -710,7 +717,9 @@ function App() {
                                     </div>
                                 ) : (
                                     <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
-                                        <div className="text-5xl opacity-50">🔍</div>
+                                        <div className="text-5xl opacity-50 text-orange-600">
+                                            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                        </div>
                                         <h3 className="text-lg font-bold text-stone-300">İlan Bulunamadı</h3>
                                         <p className="text-sm text-stone-500 max-w-sm">
                                             Bu arama kriterine uygun aktif, tıklanabilir bir LinkedIn ilanı bulunamadı. Aramanızı daha genel tutarak tekrar deneyebilirsiniz.
@@ -726,7 +735,7 @@ function App() {
                 {activePage === 'home' && (
                     <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
-                            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-red-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent leading-tight drop-shadow-sm">
+                            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-red-500 via-orange-500 to-orange-400 bg-clip-text text-transparent leading-tight drop-shadow-sm">
                                 KARİYERİNE ODAKLAN <br />
                                 VE <br />
                                 CV Nİ ANALİZ ET
@@ -741,7 +750,12 @@ function App() {
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
                                 className="group relative bg-[#160604]/80 backdrop-blur-sm border border-red-900/30 hover:border-red-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] flex flex-col justify-between min-h-[220px]"
                             >
-                                <div className="w-12 h-12 bg-red-900/30 rounded-xl flex items-center justify-center text-red-500 text-2xl mb-4 border border-red-500/20">🎯</div>
+                                {/* YENİ SVG İKON (Hedef Tahtası) */}
+                                <div className="w-12 h-12 bg-red-900/30 rounded-xl flex items-center justify-center text-red-500 mb-4 border border-red-500/20">
+                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 16a6 6 0 110-12 6 6 0 010 12zm0-9a3 3 0 100 6 3 3 0 000-6z"/>
+                                    </svg>
+                                </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">İŞE UYUMUNU HESAPLA</h3>
                                     <p className="text-sm text-stone-400">LinkedIn veya kariyer sitelerindeki ilanlarla CV'nizi karşılaştırın.</p>
@@ -750,9 +764,14 @@ function App() {
 
                             <button
                                 onClick={() => { setActivePage('ats-check'); handleReset(); }}
-                                className="group relative bg-[#160604]/80 backdrop-blur-sm border border-orange-900/30 hover:border-orange-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)] flex flex-col justify-between min-h-[220px]"
+                                className="group relative bg-[#160604]/80 backdrop-blur-sm border border-orange-900/30 hover:border-orange-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(234,88,12,0.15)] flex flex-col justify-between min-h-[220px]"
                             >
-                                <div className="w-12 h-12 bg-orange-900/30 rounded-xl flex items-center justify-center text-orange-500 text-2xl mb-4 border border-orange-500/20">📊</div>
+                                {/* YENİ SVG İKON (Grafik) */}
+                                <div className="w-12 h-12 bg-orange-900/30 rounded-xl flex items-center justify-center text-orange-600 mb-4 border border-orange-600/20">
+                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M4 16h4v4H4zm6-8h4v12h-4zm6-4h4v16h-4z"/>
+                                    </svg>
+                                </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">ATS SKORUNU ÖĞREN</h3>
                                     <p className="text-sm text-stone-400">CV'nizin biçimsel hatalarını ve genel ATS puanını analiz edin.</p>
@@ -761,9 +780,14 @@ function App() {
 
                             <button
                                 onClick={() => { setActivePage('ai-jobs'); handleReset(); }}
-                                className="group relative bg-[#160604]/80 backdrop-blur-sm border border-amber-900/30 hover:border-amber-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] flex flex-col justify-between min-h-[220px]"
+                                className="group relative bg-[#160604]/80 backdrop-blur-sm border border-orange-700/30 hover:border-orange-400/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(251,146,60,0.15)] flex flex-col justify-between min-h-[220px]"
                             >
-                                <div className="w-12 h-12 bg-amber-900/30 rounded-xl flex items-center justify-center text-amber-500 text-2xl mb-4 border border-amber-500/20">✨</div>
+                                {/* YENİ SVG İKON (Yıldızlar) */}
+                                <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400 mb-4 border border-orange-400/20">
+                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.5-6.2 4.5 2.4-7.6L2 9.6h7.6z"/>
+                                    </svg>
+                                </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">GELİŞMİŞ İŞ BULMA MOTORU</h3>
                                     <p className="text-sm text-stone-400">Sizin için en uygun iş ilanı linklerini bulun ve eşleşmeleri anında görün.</p>
@@ -820,11 +844,13 @@ function App() {
                                     >
                                         <input type="file" id="file-upload" accept=".pdf" onChange={handleFileChange} className="hidden" />
                                         <label htmlFor="file-upload" className="cursor-pointer space-y-3 block">
-                                            <div className="text-4xl drop-shadow-md">📄</div>
+                                            <div className="text-4xl drop-shadow-md text-orange-500">
+                                                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </div>
                                             {selectedFile ? (
-                                                <p className="text-orange-400 font-semibold text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
+                                                <p className="text-orange-400 font-semibold text-sm truncate max-w-xs mx-auto mt-2">{selectedFile.name}</p>
                                             ) : (
-                                                <p className="text-stone-400 text-sm">Dosya seçin veya sürükleyip bırakın</p>
+                                                <p className="text-stone-400 text-sm mt-2">Dosya seçin veya sürükleyip bırakın</p>
                                             )}
                                         </label>
                                     </div>
@@ -861,7 +887,9 @@ function App() {
                                         </>
                                     ) : (
                                         <>
-                                            <div className="text-5xl opacity-40 filter drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">🎯</div>
+                                            <div className="text-orange-600 opacity-40 filter drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]">
+                                                <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 16a6 6 0 110-12 6 6 0 010 12zm0-9a3 3 0 100 6 3 3 0 000-6z"/></svg>
+                                            </div>
                                             <h3 className="text-lg font-bold text-stone-300">Sonuç Paneli</h3>
                                             <p className="text-sm text-stone-500 max-w-xs">Bilgileri girdikten sonra "Uyumu Hesapla" butonuna basarak analizi başlatabilirsiniz.</p>
                                         </>
@@ -916,8 +944,8 @@ function App() {
 
                                     <div className="space-y-5">
                                         <div className="bg-red-950/20 border border-red-900/40 p-5 rounded-xl space-y-3">
-                                            <h4 className="text-md font-bold text-red-400 flex items-center gap-2">
-                                                <span>⚠️</span> CV'nin Eksiklikleri
+                                            <h4 className="text-md font-bold text-red-500 flex items-center gap-2">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> CV'nin Eksiklikleri
                                             </h4>
                                             <ul className="text-sm md:text-base text-stone-200 space-y-2 list-disc pl-5 leading-relaxed">
                                                 {analysisResult.missingSkills.map((item, idx) => <li key={idx}>{item}</li>)}
@@ -926,7 +954,7 @@ function App() {
 
                                         <div className="bg-orange-950/20 border border-orange-900/40 p-5 rounded-xl space-y-3">
                                             <h4 className="text-md font-bold text-orange-400 flex items-center gap-2">
-                                                <span>💡</span> Geliştirilmesi Gerekenler
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Geliştirilmesi Gerekenler
                                             </h4>
                                             <ul className="text-sm md:text-base text-stone-200 space-y-2 list-disc pl-5 leading-relaxed">
                                                 {analysisResult.improvements.map((item, idx) => <li key={idx}>{item}</li>)}
@@ -961,11 +989,13 @@ function App() {
                                     >
                                         <input type="file" id="file-upload-ats" accept=".pdf" onChange={handleFileChange} className="hidden" />
                                         <label htmlFor="file-upload-ats" className="cursor-pointer space-y-3 block">
-                                            <div className="text-4xl drop-shadow-md">📊</div>
+                                            <div className="text-4xl drop-shadow-md text-orange-500">
+                                                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </div>
                                             {selectedFile ? (
-                                                <p className="text-orange-400 font-semibold text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
+                                                <p className="text-orange-400 font-semibold text-sm truncate max-w-xs mx-auto mt-2">{selectedFile.name}</p>
                                             ) : (
-                                                <p className="text-stone-300 text-sm">Analiz edilecek CV dosyasını seçin veya bırakın</p>
+                                                <p className="text-stone-300 text-sm mt-2">Analiz edilecek CV dosyasını seçin veya bırakın</p>
                                             )}
                                         </label>
                                     </div>
@@ -1002,7 +1032,9 @@ function App() {
                                         </>
                                     ) : (
                                         <>
-                                            <div className="text-5xl opacity-40 filter drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]">🎯</div>
+                                            <div className="text-orange-600 opacity-40 filter drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]">
+                                                <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M4 16h4v4H4zm6-8h4v12h-4zm6-4h4v16h-4z"/></svg>
+                                            </div>
                                             <h3 className="text-lg font-bold text-stone-300">ATS Kontrol Merkezi</h3>
                                             <p className="text-sm text-stone-500 max-w-xs">Sol panelden CV'nizi yükleyerek bağımsız ATS karnenizi oluşturun.</p>
                                         </>
@@ -1060,19 +1092,19 @@ function App() {
                                             <h4 className="text-stone-300 font-bold border-b border-red-900/40 pb-2">📂 CV Genel Karnesi</h4>
                                             <div className="grid grid-cols-2 gap-2 text-xs">
                                                 <span className="text-stone-400">Dosya Biçimi:</span>
-                                                <span className="text-orange-400 text-right font-semibold">{atsResult.fileCheck}</span>
+                                                <span className="text-orange-500 text-right font-semibold">{atsResult.fileCheck}</span>
 
                                                 <span className="text-stone-400">İletişim Bilgileri:</span>
-                                                <span className="text-orange-400 text-right font-semibold">{atsResult.contactCheck}</span>
+                                                <span className="text-orange-500 text-right font-semibold">{atsResult.contactCheck}</span>
 
                                                 <span className="text-stone-400">Deneyim & Proje Anlatımı:</span>
-                                                <span className="text-amber-400 text-right font-semibold">{atsResult.experienceCheck}</span>
+                                                <span className="text-orange-400 text-right font-semibold">{atsResult.experienceCheck}</span>
                                             </div>
                                         </div>
 
                                         <div className="bg-orange-950/20 border border-orange-900/40 p-5 rounded-xl space-y-3">
                                             <h4 className="text-md font-bold text-orange-400 flex items-center gap-2">
-                                                <span>🚀</span> CV Geliştirme Önerileri
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> CV Geliştirme Önerileri
                                             </h4>
                                             <ul className="text-sm text-stone-200 space-y-2 list-disc pl-5 leading-relaxed">
                                                 {atsResult.suggestions.map((item, idx) => <li key={idx}>{item}</li>)}
