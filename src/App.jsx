@@ -397,7 +397,6 @@ function App() {
 
         try {
             const token = localStorage.getItem('cvscore_jwt');
-            // GÜNCELLEME: Arama sorgusu özel karakterlere karşı güvenli hale getirildi
             const safeQuery = encodeURIComponent(jobKeyword);
             const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${safeQuery}&page=1`, {
                 method: "GET",
@@ -443,7 +442,6 @@ function App() {
 
         try {
             const token = localStorage.getItem('cvscore_jwt');
-            // GÜNCELLEME: Arama sorgusu özel karakterlere karşı güvenli hale getirildi
             const safeQuery = encodeURIComponent(jobKeyword);
             const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${safeQuery}&page=${nextPage}`, {
                 method: "GET",
@@ -603,7 +601,7 @@ function App() {
 
                         <div className="text-center space-y-2 w-full mt-4">
                             <h2 className="text-3xl font-bold text-slate-100 flex items-center justify-center gap-3">
-                                <span className="text-indigo-400">✨</span> YAPAY ZEKA İLE İŞ BUL
+                                <span className="text-indigo-400">✨</span> GELİŞMİŞ İŞ BULMA MOTORU
                             </h2>
                             <p className="text-slate-400 text-sm">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
                         </div>
@@ -705,12 +703,12 @@ function App() {
                     </div>
                 )}
 
-                {/* DİĞER SAYFALAR (home, job-match, ats-check) AYNEN KORUNDU */}
+                {/* DİĞER SAYFALAR (home, job-match, ats-check) */}
                 {activePage === 'home' && (
                     <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
                             <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-                                Yapay Zeka Destekli CV Analizi
+                                KARİYERİNE ODAKLAN VE CV Nİ İNCELE
                             </h1>
                             <p className="text-slate-400 text-lg md:text-xl max-w-xl mx-auto">
                                 CV'nizi ATS standartlarına göre optimize edin ve iş ilanlarına uyumunuzu anında ölçün.
@@ -746,8 +744,8 @@ function App() {
                             >
                                 <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-2xl mb-4">✨</div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">YAPAY ZEKA İLE İŞ BUL</h3>
-                                    <p className="text-sm text-slate-400">Sizin için en uygun 10 iş ilanı linkini bulun ve eşleşmeleri anında görün.</p>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">GELİŞMİŞ İŞ BULMA MOTORU</h3>
+                                    <p className="text-sm text-slate-400">Sizin için en uygun iş ilanı linklerini bulun ve eşleşmeleri anında görün.</p>
                                 </div>
                             </button>
                         </div>
