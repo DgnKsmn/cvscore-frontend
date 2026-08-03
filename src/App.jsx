@@ -24,8 +24,12 @@ function App() {
     const [jobKeyword, setJobKeyword] = useState('');
     const [jobList, setJobList] = useState([]);
     const [isJobSearching, setIsJobSearching] = useState(false);
-    // YENİ: Aramanın bitip bitmediğini takip etmek için
     const [hasSearchedJobs, setHasSearchedJobs] = useState(false);
+
+    // YENİ: Sayfalama (Pagination) state'leri
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMoreJobs, setHasMoreJobs] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const [analysisResult, setAnalysisResult] = useState({
         score: 0,
@@ -74,7 +78,6 @@ function App() {
             console.log("Backend'den Gelen Yanıt:", data);
 
             if (response.ok) {
-                // İŞTE SADECE BU SATIR KULLANICI DOSTU HALE GELDİ:
                 toast.success("CV'niz başarıyla sisteme yüklendi!");
             } else {
                 toast.error("CV yüklenirken bir sorun oluştu: " + (data.error || "Lütfen tekrar deneyin."));
@@ -208,7 +211,10 @@ function App() {
         setShowAuthWarning(false);
         setJobKeyword('');
         setJobList([]);
-        setHasSearchedJobs(false); // Sıfırlamada bunu da temizliyoruz
+        setHasSearchedJobs(false);
+        // Yeni paginasyon sıfırlamaları
+        setCurrentPage(1);
+        setHasMoreJobs(true);
     };
 
     const handleCalculateMatch = async () => {
@@ -368,6 +374,7 @@ function App() {
         }
     };
 
+    // İLK ARAMA FONKSİYONU
     const handleJobSearch = async () => {
         if (!isLoggedIn) {
             setShowAuthWarning(true);
@@ -376,23 +383,20 @@ function App() {
         }
         setShowAuthWarning(false);
 
-        if (!selectedFile) {
-            toast.error("Lütfen ilan aramadan önce CV'nizi yükleyin.");
-            return;
-        }
-
         if (!jobKeyword.trim()) {
             toast.error("Lütfen aranacak hedef pozisyonu girin.");
             return;
         }
 
         setIsJobSearching(true);
-        setHasSearchedJobs(false); // Yeni arama başladığında durumu sıfırla
+        setHasSearchedJobs(false);
         setJobList([]);
+        setCurrentPage(1);
+        setHasMoreJobs(true);
 
         try {
             const token = localStorage.getItem('cvscore_jwt');
-            const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${jobKeyword}`, {
+            const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${jobKeyword}&page=1`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`
@@ -412,13 +416,69 @@ function App() {
 
             const data = await response.json();
             setJobList(data);
-            setHasSearchedJobs(true); // Veri boş gelse bile arama işlemi başarıyla tamamlandı
+            setHasSearchedJobs(true);
+
+            // Gelen veri 10'dan azsa daha fazla ilan yok demektir
+            if (data.length < 10) {
+                setHasMoreJobs(false);
+            }
 
         } catch (error) {
             console.error("İlan Arama Hatası:", error);
             toast.error(error.message || "İlanlar getirilirken bir sorun oluştu.");
         } finally {
             setIsJobSearching(false);
+        }
+    };
+
+    // DAHA FAZLA GÖSTER FONKSİYONU
+    const handleLoadMore = async () => {
+        if (isLoadingMore || !hasMoreJobs) return;
+        setIsLoadingMore(true);
+
+        const nextPage = currentPage + 1;
+
+        try {
+            const token = localStorage.getItem('cvscore_jwt');
+            const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${jobKeyword}&page=${nextPage}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 403) {
+                toast.error("Oturumunuz süresi dolmuş veya geçersiz. Lütfen tekrar giriş yapın.");
+                setActivePage('login');
+                setIsLoadingMore(false);
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error("İlanlar çekilirken sunucu kaynaklı bir hata oluştu.");
+            }
+
+            const data = await response.json();
+
+            // Eğer yeni data geldiyse listeye ekle
+            if (data && data.length > 0) {
+                setJobList(prev => [...prev, ...data]);
+                setCurrentPage(nextPage);
+
+                // Gelen veri yine 10'dan azsa daha fazla göster butonunu kaldır
+                if (data.length < 10) {
+                    setHasMoreJobs(false);
+                }
+            } else {
+                // Hiç veri dönmediyse buton tamamen kalksın
+                setHasMoreJobs(false);
+            }
+
+        } catch (error) {
+            console.error("Daha fazla ilan çekilirken hata:", error);
+            toast.error("Yeni ilanlar getirilirken bir sorun oluştu.");
+        } finally {
+            setIsLoadingMore(false);
         }
     };
 
@@ -532,130 +592,115 @@ function App() {
                     </div>
                 )}
 
+                {/* YENİ TASARIM: YAPAY ZEKA İLE İŞ BUL (Arama Motoru Stili) */}
                 {activePage === 'ai-jobs' && (
-                    <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-start print:block">
+                    <div className="w-full max-w-3xl mx-auto flex flex-col items-center space-y-8 print:block">
 
-                        {/* SOL PANEL */}
-                        <div className="print:hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 flex flex-col justify-between">
-                            <div className="space-y-6">
-                                <div className="border-b border-slate-800 pb-4">
-                                    <h2 className="text-2xl font-bold text-slate-100 flex items-center gap-2">
-                                        <span className="text-indigo-400">✨</span> YAPAY ZEKA İLE İŞ BUL
-                                    </h2>
-                                    <p className="text-sm text-slate-400 mt-1">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-300 block">CV Dosyası (.pdf)</label>
-                                    <div
-                                        onDragEnter={handleDrag}
-                                        onDragOver={handleDrag}
-                                        onDragLeave={handleDrag}
-                                        onDrop={handleDrop}
-                                        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-                                            dragActive ? 'border-indigo-500 bg-indigo-500/5' : 'border-slate-800 bg-slate-950 hover:border-slate-700'
-                                        }`}
-                                    >
-                                        <input type="file" id="file-upload-jobs" accept=".pdf" onChange={handleFileChange} className="hidden" />
-                                        <label htmlFor="file-upload-jobs" className="cursor-pointer space-y-3 block">
-                                            <div className="text-4xl">📄</div>
-                                            {selectedFile ? (
-                                                <p className="text-indigo-400 font-semibold text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
-                                            ) : (
-                                                <p className="text-slate-300 text-sm">İş eşleştirmesi için CV'nizi seçin veya sürükleyin</p>
-                                            )}
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-300 block">Aradığınız Pozisyon</label>
-                                    <input
-                                        type="text"
-                                        value={jobKeyword}
-                                        onChange={e => setJobKeyword(e.target.value)}
-                                        placeholder="Örn: Backend Developer"
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
-                                    />
-                                </div>
-                            </div>
-
-                            {!isLoggedIn && showAuthWarning && (
-                                <div
-                                    onClick={() => setActivePage('login')}
-                                    className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mt-4 w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
-                                >
-                                    Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
-                                </div>
-                            )}
-
-                            <div className="grid grid-cols-3 gap-4 pt-6">
-                                <button onClick={handleReset} className="bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-colors">
-                                    Sıfırla
-                                </button>
-                                <button onClick={handleJobSearch} disabled={isJobSearching} className="col-span-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50">
-                                    {isJobSearching ? "Aranıyor..." : "İlan Bul"}
-                                </button>
-                            </div>
+                        <div className="text-center space-y-2 w-full mt-4">
+                            <h2 className="text-3xl font-bold text-slate-100 flex items-center justify-center gap-3">
+                                <span className="text-indigo-400">✨</span> YAPAY ZEKA İLE İŞ BUL
+                            </h2>
+                            <p className="text-slate-400 text-sm">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
                         </div>
 
-                        {/* SAĞ PANEL GÜNCELLENDİ (Empty state mantığı) */}
-                        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between min-h-[500px] print:border-none print:shadow-none">
+                        <div className="w-full relative bg-slate-900 border border-slate-700 rounded-full shadow-lg shadow-indigo-500/10 focus-within:border-indigo-500 transition-colors flex items-center p-2">
+                            <div className="pl-4 text-2xl opacity-50">🔍</div>
+                            <input
+                                type="text"
+                                value={jobKeyword}
+                                onChange={e => setJobKeyword(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleJobSearch()}
+                                placeholder="Aradığınız Pozisyon (Örn: Java Developer)"
+                                className="flex-grow bg-transparent border-none text-slate-200 px-4 py-3 focus:outline-none text-lg"
+                            />
+                            <button
+                                onClick={handleJobSearch}
+                                disabled={isJobSearching}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition-all disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {isJobSearching ? "Aranıyor..." : "İlan Bul"}
+                            </button>
+                        </div>
 
-                            {!hasSearchedJobs && !isJobSearching ? (
-                                // 1. Başlangıç Ekranı
-                                <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
-                                    <div className="text-5xl opacity-50">💼</div>
-                                    <h3 className="text-lg font-bold text-slate-400">Sizin İçin Uygun İlanlar</h3>
-                                    <p className="text-sm text-slate-500 max-w-xs">CV'nizi yükleyip taramayı başlattığınızda gerçek LinkedIn ilan linkleri burada listelenecektir.</p>
-                                </div>
-                            ) : isJobSearching ? (
-                                // 2. Yükleniyor Ekranı
-                                <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
-                                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-500"></div>
-                                    <h3 className="text-lg font-bold text-slate-300">CV ve Pozisyon Analizi</h3>
-                                    <p className="text-sm text-slate-500 max-w-xs">En uygun gerçek ilanlar filtreleniyor...</p>
-                                </div>
-                            ) : jobList.length > 0 ? (
-                                // 3. Sonuç Bulundu Ekranı
-                                <div className="space-y-6">
-                                    <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
-                                        <h3 className="text-xl font-bold text-slate-100">
+                        {!isLoggedIn && showAuthWarning && (
+                            <div
+                                onClick={() => setActivePage('login')}
+                                className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
+                            >
+                                Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
+                            </div>
+                        )}
+
+                        {/* Sonuç Alanı */}
+                        {hasSearchedJobs && (
+                            <div className="w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col transition-all shadow-xl">
+
+                                {isJobSearching ? (
+                                    <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-500"></div>
+                                        <h3 className="text-lg font-bold text-slate-300">İlanlar Taranıyor</h3>
+                                        <p className="text-sm text-slate-500 max-w-xs">En uygun gerçek ilanlar filtreleniyor...</p>
+                                    </div>
+                                ) : jobList.length > 0 ? (
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-bold text-slate-100 px-2 pb-2 border-b border-slate-800">
                                             Bulunan İlanlar <span className="text-indigo-400">({jobList.length})</span>
                                         </h3>
-                                    </div>
-                                    <div className="overflow-y-auto max-h-[400px] pr-2 space-y-3 custom-scrollbar">
-                                        {jobList.map((link, index) => (
-                                            <a
-                                                key={index}
-                                                href={link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-center justify-between p-4 bg-slate-950/50 border border-slate-800 rounded-xl hover:border-[#0a66c2]/50 hover:bg-slate-900 transition-all group"
-                                            >
-                                                <span className="font-medium text-slate-300 group-hover:text-white flex items-center gap-3 text-sm">
-                                                    <span className="text-xl">🔗</span> LinkedIn İlanı {index + 1}
-                                                </span>
-                                                <span className="text-[#0a66c2] bg-[#0a66c2]/10 px-4 py-1.5 rounded-lg font-bold text-xs group-hover:bg-[#0a66c2] group-hover:text-white transition-colors">
-                                                    İlana Git ↗
-                                                </span>
-                                            </a>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                // 4. Sonuç Bulunamadı Ekranı (Eksik Olan Kısım Buydu)
-                                <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
-                                    <div className="text-5xl opacity-50">🔍</div>
-                                    <h3 className="text-lg font-bold text-slate-400">İlan Bulunamadı</h3>
-                                    <p className="text-sm text-slate-500 max-w-xs">Bu arama kriterine uygun aktif, tıklanabilir bir LinkedIn ilanı bulunamadı. Aramanızı örneğin sadece "Bilgisayar Mühendisi" olarak güncelleyerek tekrar deneyebilirsiniz.</p>
-                                </div>
-                            )}
 
-                        </div>
+                                        <div className="space-y-3">
+                                            {jobList.map((link, index) => (
+                                                <a
+                                                    key={index}
+                                                    href={link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center justify-between p-4 bg-slate-950/50 border border-slate-800 rounded-xl hover:border-[#0a66c2]/50 hover:bg-slate-900 transition-all group"
+                                                >
+                                                    <span className="font-medium text-slate-300 group-hover:text-white flex items-center gap-3 text-sm truncate pr-4">
+                                                        <span className="text-xl shrink-0">🔗</span> LinkedIn İlanı {index + 1}
+                                                    </span>
+                                                    <span className="text-[#0a66c2] bg-[#0a66c2]/10 px-4 py-1.5 rounded-lg font-bold text-xs shrink-0 group-hover:bg-[#0a66c2] group-hover:text-white transition-colors">
+                                                        İlana Git ↗
+                                                    </span>
+                                                </a>
+                                            ))}
+                                        </div>
+
+                                        {/* Daha Fazla Göster / Uyarı */}
+                                        <div className="pt-6 pb-2 text-center">
+                                            {hasMoreJobs ? (
+                                                <button
+                                                    onClick={handleLoadMore}
+                                                    disabled={isLoadingMore}
+                                                    className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-6 py-2.5 rounded-full transition-all font-semibold disabled:opacity-50 flex items-center justify-center mx-auto gap-2"
+                                                >
+                                                    {isLoadingMore ? (
+                                                        <><div className="animate-spin rounded-full h-4 w-4 border-t-2 border-slate-300"></div> Yükleniyor...</>
+                                                    ) : "Daha Fazla Göster ↓"}
+                                                </button>
+                                            ) : (
+                                                <div className="mt-4 p-4 bg-slate-950/50 border border-slate-800 rounded-xl text-slate-400 text-sm font-bold uppercase tracking-wider">
+                                                    MAALESEF BAŞKA İLAN BULUNAMADI
+                                                </div>
+                                            )}
+                                        </div>
+
+                                    </div>
+                                ) : (
+                                    <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
+                                        <div className="text-5xl opacity-50">🔍</div>
+                                        <h3 className="text-lg font-bold text-slate-400">İlan Bulunamadı</h3>
+                                        <p className="text-sm text-slate-500 max-w-sm">
+                                            Bu arama kriterine uygun aktif, tıklanabilir bir LinkedIn ilanı bulunamadı. Aramanızı daha genel tutarak tekrar deneyebilirsiniz.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
 
+                {/* DİĞER SAYFALAR (home, job-match, ats-check) AYNEN KORUNDU */}
                 {activePage === 'home' && (
                     <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
