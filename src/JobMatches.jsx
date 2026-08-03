@@ -28,42 +28,35 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
         }
     };
 
-    // GÜNCELLENEN KISIM: İstek artık RapidAPI'ye değil, doğrudan güvenli backend'imize gidiyor!
+    // GÜNCELLENEN KISIM: İstek doğrudan Railway backend'imize ve yeni SerpApi formatına (List<String>) gidiyor!
     const fetchRealJobsFromBackend = async () => {
         try {
-            // İleride bu URL, Railway üzerindeki backend URL'miz olacak.
-            // Şimdilik geliştirme aşaması için localhost kullanıyoruz.
-            const url = 'http://localhost:8080/api/jobs/search?query=Software%20Developer%20in%20Turkey';
+            const query = encodeURIComponent("Software Developer");
+            const url = `https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${query}&page=1`;
 
-            const options = {
+            const token = localStorage.getItem('cvscore_jwt');
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Sistemin freemium limitlerini e-posta doğrulaması üzerinden
-                    // güvenle takip edebilmesi için kullanıcı token'ını (JWT) backend'e iletiyoruz.
-                    // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 }
-            };
+            });
 
-            const response = await fetch(url, options);
-            const result = await response.json();
+            if (!response.ok) throw new Error("İlanlar çekilirken bir hata oluştu.");
 
-            // Backend'imizin JSearch'ten alıp bize şeffafça ilettiği JSON verisini işliyoruz
-            if (result && result.data && result.data.length > 0) {
-                const realJobs = result.data.map((job, index) => {
-                    const title = job.job_title || "Yazılım Uzmanı";
-                    const company = job.employer_name || "Gizli Şirket";
+            const links = await response.json(); // Backend artık doğrudan saf link dizisi dönüyor
+
+            if (links && links.length > 0) {
+                const realJobs = links.map((link, index) => {
                     const matchScore = Math.max(70, 99 - index);
 
-                    const searchQuery = encodeURIComponent(`${title} ${company}`);
-                    const guaranteedLink = `https://www.linkedin.com/jobs/search/?keywords=${searchQuery}`;
-
                     return {
-                        title: title,
-                        company: company,
+                        title: `Yazılım Geliştirici Pozisyonu ${index + 1}`,
+                        company: "Global Teknoloji Şirketi",
                         matchScore: matchScore,
                         match: `%${matchScore}`,
-                        link: guaranteedLink
+                        link: link // SerpApi'den gelen gerçek ve saf ilan linki
                     };
                 });
 
@@ -74,12 +67,12 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                 fallbackToDefaultJobs();
             }
         } catch (error) {
-            console.error("Backend JSearch API Bağlantı Hatası:", error);
+            console.error("Backend SerpApi Bağlantı Hatası:", error);
             fallbackToDefaultJobs();
         }
     };
 
-    // İstediğin 25-100 arası link sayısına uygun olarak 100 adet mock ilan üreten fallback fonksiyonumuz
+    // İstediğin link sayısına uygun olarak 100 adet mock ilan üreten fallback fonksiyonumuz
     const fallbackToDefaultJobs = () => {
         const unvanlar = ["Frontend Developer", "Backend Developer", "Full Stack Engineer", "React Native Developer", "UI/UX Designer"];
         const sirketler = ["TechCorp Global", "StartupLab", "InnoSoft Yazılım", "Digital Art Studio", "NextGen Teknoloji"];
@@ -124,7 +117,6 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
         setIsAnalyzing(true);
         toast.loading("CV'niz yapay zeka ile analiz ediliyor...", { duration: 3500 });
 
-        // Artık güncellenmiş güvenli backend çağrımızı tetikliyoruz
         await fetchRealJobsFromBackend();
 
         setTimeout(() => {
@@ -247,7 +239,7 @@ const JobMatches = ({ setActivePage, isLoggedIn = false }) => {
                                         <span>📥</span> Raporu İndir
                                     </button>
                                     <span className="text-xs text-blue-400 bg-blue-400/10 px-2 py-1 rounded font-semibold">
-                                        JSearch Active
+                                        SerpApi Active
                                     </span>
                                 </div>
                                 <span className="text-[10px] text-slate-400 italic print:hidden">Analiz raporunu görmek için bir ilana tıklayın</span>
