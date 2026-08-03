@@ -539,7 +539,8 @@ function App() {
             </div>
             {/* ----------------------------------------------------- */}
 
-            <div className="print:hidden relative z-10">
+            {/* PROBLEM 2 ÇÖZÜMÜ: z-index [9999] yapıldı, bildirimler artık üst panelin altında kalmayacak */}
+            <div className="print:hidden relative z-[9999]">
                 <Toaster
                     position="top-right"
                     reverseOrder={false}
@@ -560,12 +561,11 @@ function App() {
                         onClick={() => { setActivePage('home'); handleReset(); }}
                         className="text-2xl font-black tracking-wider cursor-pointer hover:opacity-80 transition-all flex items-center gap-2"
                     >
-                        {/* --- YENİ LOGO ENTEGRASYONU --- */}
-                        {/* mix-blend-lighten sınıfı sayesinde logonun o koyu siyah arka planı silinir ve sitemize gömülü gibi durur */}
+                        {/* PROBLEM 1 ÇÖZÜMÜ: mix-blend-screen olarak güncellendi. Eğer siyah arkaplan hala tam gitmezse logoyu PNG yapmak şart. */}
                         <img
                             src={logo}
                             alt="CVSCORE Logo"
-                            className="h-12 w-auto mix-blend-lighten drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]"
+                            className="h-12 w-auto mix-blend-screen drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]"
                         />
                     </div>
 
