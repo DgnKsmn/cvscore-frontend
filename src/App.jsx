@@ -4,6 +4,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import Register from './Register';
 import Login from './Login';
 import Premium from './Premium';
+import JobSearchEngine from './JobSearchEngine';
 import { Toaster, toast } from 'react-hot-toast';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -19,17 +20,6 @@ function App() {
     const [showResults, setShowResults] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [showAuthWarning, setShowAuthWarning] = useState(false);
-
-    // Yapay Zeka İş Bulma Modülü İçin State'ler
-    const [jobKeyword, setJobKeyword] = useState('');
-    const [jobList, setJobList] = useState([]);
-    const [isJobSearching, setIsJobSearching] = useState(false);
-    const [hasSearchedJobs, setHasSearchedJobs] = useState(false);
-
-    // YENİ: Sayfalama (Pagination) state'leri
-    const [currentPage, setCurrentPage] = useState(1);
-    const [hasMoreJobs, setHasMoreJobs] = useState(true);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const [analysisResult, setAnalysisResult] = useState({
         score: 0,
@@ -88,6 +78,7 @@ function App() {
             toast.error("Sunucu bağlantısı kurulamadı.");
         }
     };
+
     const handleDrop = e => {
         e.preventDefault();
         e.stopPropagation();
@@ -209,12 +200,6 @@ function App() {
         setSelectedFile(null);
         setShowResults(false);
         setShowAuthWarning(false);
-        setJobKeyword('');
-        setJobList([]);
-        setHasSearchedJobs(false);
-        // Yeni paginasyon sıfırlamaları
-        setCurrentPage(1);
-        setHasMoreJobs(true);
     };
 
     const handleCalculateMatch = async () => {
@@ -374,114 +359,6 @@ function App() {
         }
     };
 
-    // İLK ARAMA FONKSİYONU
-    const handleJobSearch = async () => {
-        if (!isLoggedIn) {
-            setShowAuthWarning(true);
-            toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
-            return;
-        }
-        setShowAuthWarning(false);
-
-        if (!jobKeyword.trim()) {
-            toast.error("Lütfen aranacak hedef pozisyonu girin.");
-            return;
-        }
-
-        setIsJobSearching(true);
-        setHasSearchedJobs(false);
-        setJobList([]);
-        setCurrentPage(1);
-        setHasMoreJobs(true);
-
-        try {
-            const token = localStorage.getItem('cvscore_jwt');
-            const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${jobKeyword}&page=1`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
-            if (response.status === 403) {
-                toast.error("Oturumunuz süresi dolmuş veya geçersiz. Lütfen tekrar giriş yapın.");
-                setActivePage('login');
-                setIsJobSearching(false);
-                return;
-            }
-
-            if (!response.ok) {
-                throw new Error("İlanlar çekilirken sunucu kaynaklı bir hata oluştu.");
-            }
-
-            const data = await response.json();
-            setJobList(data);
-            setHasSearchedJobs(true);
-
-            // Gelen veri 10'dan azsa daha fazla ilan yok demektir
-            if (data.length < 10) {
-                setHasMoreJobs(false);
-            }
-
-        } catch (error) {
-            console.error("İlan Arama Hatası:", error);
-            toast.error(error.message || "İlanlar getirilirken bir sorun oluştu.");
-        } finally {
-            setIsJobSearching(false);
-        }
-    };
-
-    // DAHA FAZLA GÖSTER FONKSİYONU
-    const handleLoadMore = async () => {
-        if (isLoadingMore || !hasMoreJobs) return;
-        setIsLoadingMore(true);
-
-        const nextPage = currentPage + 1;
-
-        try {
-            const token = localStorage.getItem('cvscore_jwt');
-            const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${jobKeyword}&page=${nextPage}`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
-            if (response.status === 403) {
-                toast.error("Oturumunuz süresi dolmuş veya geçersiz. Lütfen tekrar giriş yapın.");
-                setActivePage('login');
-                setIsLoadingMore(false);
-                return;
-            }
-
-            if (!response.ok) {
-                throw new Error("İlanlar çekilirken sunucu kaynaklı bir hata oluştu.");
-            }
-
-            const data = await response.json();
-
-            // Eğer yeni data geldiyse listeye ekle
-            if (data && data.length > 0) {
-                setJobList(prev => [...prev, ...data]);
-                setCurrentPage(nextPage);
-
-                // Gelen veri yine 10'dan azsa daha fazla göster butonunu kaldır
-                if (data.length < 10) {
-                    setHasMoreJobs(false);
-                }
-            } else {
-                // Hiç veri dönmediyse buton tamamen kalksın
-                setHasMoreJobs(false);
-            }
-
-        } catch (error) {
-            console.error("Daha fazla ilan çekilirken hata:", error);
-            toast.error("Yeni ilanlar getirilirken bir sorun oluştu.");
-        } finally {
-            setIsLoadingMore(false);
-        }
-    };
-
     const getScoreColorHex = score => {
         if (score < 50) return '#f43f5e';
         if (score >= 50 && score < 70) return '#f59e0b';
@@ -592,115 +469,17 @@ function App() {
                     </div>
                 )}
 
-                {/* YENİ TASARIM: YAPAY ZEKA İLE İŞ BUL (Arama Motoru Stili) */}
+                {/* YENİ TASARIM: YAPAY ZEKA İLE İŞ BUL (JobSearchEngine Bileşeni) */}
                 {activePage === 'ai-jobs' && (
-                    <div className="w-full max-w-3xl mx-auto flex flex-col items-center space-y-8 print:block">
-
-                        <div className="text-center space-y-2 w-full mt-4">
-                            <h2 className="text-3xl font-bold text-slate-100 flex items-center justify-center gap-3">
-                                <span className="text-indigo-400">✨</span> YAPAY ZEKA İLE İŞ BUL
-                            </h2>
-                            <p className="text-slate-400 text-sm">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
-                        </div>
-
-                        <div className="w-full relative bg-slate-900 border border-slate-700 rounded-full shadow-lg shadow-indigo-500/10 focus-within:border-indigo-500 transition-colors flex items-center p-2">
-                            <div className="pl-4 text-2xl opacity-50">🔍</div>
-                            <input
-                                type="text"
-                                value={jobKeyword}
-                                onChange={e => setJobKeyword(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleJobSearch()}
-                                placeholder="Aradığınız Pozisyon (Örn: Java Developer)"
-                                className="flex-grow bg-transparent border-none text-slate-200 px-4 py-3 focus:outline-none text-lg"
-                            />
-                            <button
-                                onClick={handleJobSearch}
-                                disabled={isJobSearching}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition-all disabled:opacity-50 flex items-center gap-2"
-                            >
-                                {isJobSearching ? "Aranıyor..." : "İlan Bul"}
-                            </button>
-                        </div>
-
-                        {!isLoggedIn && showAuthWarning && (
-                            <div
-                                onClick={() => setActivePage('login')}
-                                className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl w-full text-center text-sm font-medium cursor-pointer hover:bg-red-500/20 transition-colors"
-                            >
-                                Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
-                            </div>
-                        )}
-
-                        {/* Sonuç Alanı */}
-                        {hasSearchedJobs && (
-                            <div className="w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col transition-all shadow-xl">
-
-                                {isJobSearching ? (
-                                    <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-500"></div>
-                                        <h3 className="text-lg font-bold text-slate-300">İlanlar Taranıyor</h3>
-                                        <p className="text-sm text-slate-500 max-w-xs">En uygun gerçek ilanlar filtreleniyor...</p>
-                                    </div>
-                                ) : jobList.length > 0 ? (
-                                    <div className="space-y-4">
-                                        <h3 className="text-lg font-bold text-slate-100 px-2 pb-2 border-b border-slate-800">
-                                            Bulunan İlanlar <span className="text-indigo-400">({jobList.length})</span>
-                                        </h3>
-
-                                        <div className="space-y-3">
-                                            {jobList.map((link, index) => (
-                                                <a
-                                                    key={index}
-                                                    href={link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center justify-between p-4 bg-slate-950/50 border border-slate-800 rounded-xl hover:border-[#0a66c2]/50 hover:bg-slate-900 transition-all group"
-                                                >
-                                                    <span className="font-medium text-slate-300 group-hover:text-white flex items-center gap-3 text-sm truncate pr-4">
-                                                        <span className="text-xl shrink-0">🔗</span> LinkedIn İlanı {index + 1}
-                                                    </span>
-                                                    <span className="text-[#0a66c2] bg-[#0a66c2]/10 px-4 py-1.5 rounded-lg font-bold text-xs shrink-0 group-hover:bg-[#0a66c2] group-hover:text-white transition-colors">
-                                                        İlana Git ↗
-                                                    </span>
-                                                </a>
-                                            ))}
-                                        </div>
-
-                                        {/* Daha Fazla Göster / Uyarı */}
-                                        <div className="pt-6 pb-2 text-center">
-                                            {hasMoreJobs ? (
-                                                <button
-                                                    onClick={handleLoadMore}
-                                                    disabled={isLoadingMore}
-                                                    className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-6 py-2.5 rounded-full transition-all font-semibold disabled:opacity-50 flex items-center justify-center mx-auto gap-2"
-                                                >
-                                                    {isLoadingMore ? (
-                                                        <><div className="animate-spin rounded-full h-4 w-4 border-t-2 border-slate-300"></div> Yükleniyor...</>
-                                                    ) : "Daha Fazla Göster ↓"}
-                                                </button>
-                                            ) : (
-                                                <div className="mt-4 p-4 bg-slate-950/50 border border-slate-800 rounded-xl text-slate-400 text-sm font-bold uppercase tracking-wider">
-                                                    MAALESEF BAŞKA İLAN BULUNAMADI
-                                                </div>
-                                            )}
-                                        </div>
-
-                                    </div>
-                                ) : (
-                                    <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
-                                        <div className="text-5xl opacity-50">🔍</div>
-                                        <h3 className="text-lg font-bold text-slate-400">İlan Bulunamadı</h3>
-                                        <p className="text-sm text-slate-500 max-w-sm">
-                                            Bu arama kriterine uygun aktif, tıklanabilir bir LinkedIn ilanı bulunamadı. Aramanızı daha genel tutarak tekrar deneyebilirsiniz.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                    <div className="w-full mx-auto print:hidden">
+                        <JobSearchEngine
+                            isLoggedIn={isLoggedIn}
+                            setActivePage={setActivePage}
+                        />
                     </div>
                 )}
 
-                {/* DİĞER SAYFALAR (home, job-match, ats-check) AYNEN KORUNDU */}
+                {/* DİĞER SAYFALAR (home, job-match, ats-check) */}
                 {activePage === 'home' && (
                     <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
