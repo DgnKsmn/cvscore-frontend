@@ -1,4 +1,4 @@
-,import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import Register from './Register';
 import Login from './Login';
@@ -762,7 +762,7 @@ function App() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İŞE UYUMUNU HESAPLA</h3>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İŞe Uyumunu Hesapla</h3>
                                     <p className="text-sm text-stone-400">LinkedIn veya kariyer sitelerindeki ilanlarla CV'nizi karşılaştırın.</p>
                                 </div>
                             </button>
@@ -778,7 +778,7 @@ function App() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">ATS SKORUNU ÖĞREN</h3>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">ATS Skorunu Öğren</h3>
                                     <p className="text-sm text-stone-400">CV'nizin biçimsel hatalarını ve genel ATS puanını analiz edin.</p>
                                 </div>
                             </button>
@@ -794,7 +794,7 @@ function App() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">GELİŞMİŞ İŞ BULMA MOTORU</h3>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">Gelişmiş İş Bulma Motoru</h3>
                                     <p className="text-sm text-stone-400">Sizin için en uygun iş ilanı linklerini bulun ve eşleşmeleri anında görün.</p>
                                 </div>
                             </button>
@@ -807,7 +807,7 @@ function App() {
                         <div className="print:hidden bg-[#160604]/90 backdrop-blur-md border border-red-900/30 p-6 rounded-2xl space-y-6 flex flex-col justify-between shadow-xl">
                             <div className="space-y-6">
                                 <div className="border-b border-red-900/40 pb-4">
-                                    <h2 className="text-2xl font-bold text-slate-100">İŞE UYUMUNU HESAPLA</h2>
+                                    <h2 className="text-2xl font-bold text-slate-100">İŞe Uyumunu Hesapla</h2>
                                     <p className="text-sm text-stone-400 mt-1">İlan detayları ile CV'nizi karşılaştırın</p>
                                 </div>
 
@@ -977,7 +977,7 @@ function App() {
                         <div className="print:hidden bg-[#160604]/90 backdrop-blur-md border border-red-900/30 p-6 rounded-2xl space-y-6 flex flex-col justify-between shadow-xl">
                             <div className="space-y-6">
                                 <div className="border-b border-red-900/40 pb-4">
-                                    <h2 className="text-2xl font-bold text-slate-100">ATS SKORUNU ÖĞREN</h2>
+                                    <h2 className="text-2xl font-bold text-slate-100">ATS Skorunu Öğren</h2>
                                     <p className="text-sm text-stone-400 mt-1">CV'nizi bağımsız ATS kriterlerine göre puanlayın</p>
                                 </div>
 
