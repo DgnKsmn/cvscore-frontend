@@ -4,7 +4,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import Register from './Register';
 import Login from './Login';
 import Premium from './Premium';
-import JobSearchEngine from './JobSearchEngine';
+import JobMatches from './JobMatches';
 import { Toaster, toast } from 'react-hot-toast';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -469,10 +469,10 @@ function App() {
                     </div>
                 )}
 
-                {/* YENİ TASARIM: YAPAY ZEKA İLE İŞ BUL (JobSearchEngine Bileşeni) */}
+                {/* YENİ TASARIM: YAPAY ZEKA İLE İŞ BUL (JobMatches Bileşeni) */}
                 {activePage === 'ai-jobs' && (
                     <div className="w-full mx-auto print:hidden">
-                        <JobSearchEngine
+                        <JobMatches
                             isLoggedIn={isLoggedIn}
                             setActivePage={setActivePage}
                         />
@@ -521,7 +521,7 @@ function App() {
                                 <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-2xl mb-4">✨</div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">YAPAY ZEKA İLE İŞ BUL</h3>
-                                    <p className="text-sm text-slate-400">Sizin için en uygun 10 iş ilanı linkini bulun ve eşleşmeleri anında görün.</p>
+                                    <p className="text-sm text-slate-400">Sizin için en uygun iş ilanları linklerini bulun ve eşleşmeleri anında görün.</p>
                                 </div>
                             </button>
                         </div>
