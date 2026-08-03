@@ -560,7 +560,13 @@ function App() {
                         onClick={() => { setActivePage('home'); handleReset(); }}
                         className="text-2xl font-black tracking-wider cursor-pointer hover:opacity-80 transition-all flex items-center gap-2"
                     >
-                        <img src={logo} alt="CVSCORE Logo" className="h-12 w-auto drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]" />
+                        {/* --- YENİ LOGO ENTEGRASYONU --- */}
+                        {/* mix-blend-lighten sınıfı sayesinde logonun o koyu siyah arka planı silinir ve sitemize gömülü gibi durur */}
+                        <img
+                            src={logo}
+                            alt="CVSCORE Logo"
+                            className="h-12 w-auto mix-blend-lighten drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]"
+                        />
                     </div>
 
                     <div className="flex gap-3">
