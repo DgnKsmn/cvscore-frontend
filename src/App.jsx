@@ -549,7 +549,7 @@ function App() {
                                 {(activePage !== 'login' && activePage !== 'register') && (
                                     <button
                                         onClick={() => { setActivePage('login'); handleReset(); }}
-                                        className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg transition-all font-semibold shadow-lg shadow-blue-500/30"
+                                        className="text-sm bg-red-700 hover:bg-red-600 text-white px-5 py-2.5 rounded-lg transition-all font-semibold shadow-lg shadow-red-700/30"
                                     >
                                         Giriş Yap / Kayıt Ol
                                     </button>
@@ -567,7 +567,7 @@ function App() {
                         {activePage !== 'home' && (
                             <button
                                 onClick={() => { setActivePage('home'); handleReset(); }}
-                                className="text-sm bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg transition-all font-semibold shadow-lg shadow-red-500/30 ml-2"
+                                className="text-sm bg-orange-500 hover:bg-orange-400 text-white px-5 py-2.5 rounded-lg transition-all font-semibold shadow-lg shadow-orange-500/30 ml-2"
                             >
                                 Ana Menü
                             </button>
@@ -601,12 +601,12 @@ function App() {
 
                         <div className="text-center space-y-2 w-full mt-4">
                             <h2 className="text-3xl font-bold text-slate-100 flex items-center justify-center gap-3">
-                                <span className="text-indigo-400">✨</span> GELİŞMİŞ İŞ BULMA MOTORU
+                                <span className="text-orange-400">✨</span> GELİŞMİŞ İŞ BULMA MOTORU
                             </h2>
                             <p className="text-slate-400 text-sm">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
                         </div>
 
-                        <div className="w-full relative bg-slate-900 border border-slate-700 rounded-full shadow-lg shadow-indigo-500/10 focus-within:border-indigo-500 transition-colors flex items-center p-2">
+                        <div className="w-full relative bg-slate-900 border border-slate-700 rounded-full shadow-lg shadow-red-500/10 focus-within:border-orange-500 transition-colors flex items-center p-2">
                             <div className="pl-4 text-2xl opacity-50">🔍</div>
                             <input
                                 type="text"
@@ -619,7 +619,7 @@ function App() {
                             <button
                                 onClick={handleJobSearch}
                                 disabled={isJobSearching}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full transition-all disabled:opacity-50 flex items-center gap-2"
+                                className="bg-gradient-to-r from-red-700 via-orange-600 to-orange-500 hover:from-red-600 hover:via-orange-500 hover:to-orange-400 text-white font-bold py-3 px-8 rounded-full transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-orange-500/20"
                             >
                                 {isJobSearching ? "Aranıyor..." : "İlan Bul"}
                             </button>
@@ -640,14 +640,14 @@ function App() {
 
                                 {isJobSearching ? (
                                     <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-500"></div>
+                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-orange-500"></div>
                                         <h3 className="text-lg font-bold text-slate-300">İlanlar Taranıyor</h3>
                                         <p className="text-sm text-slate-500 max-w-xs">En uygun gerçek ilanlar filtreleniyor...</p>
                                     </div>
                                 ) : jobList.length > 0 ? (
                                     <div className="space-y-4">
                                         <h3 className="text-lg font-bold text-slate-100 px-2 pb-2 border-b border-slate-800">
-                                            Bulunan İlanlar <span className="text-indigo-400">({jobList.length})</span>
+                                            Bulunan İlanlar <span className="text-orange-400">({jobList.length})</span>
                                         </h3>
 
                                         <div className="space-y-3">
@@ -707,7 +707,7 @@ function App() {
                 {activePage === 'home' && (
                     <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
-                            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent leading-tight">
+                            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-red-500 to-orange-400 bg-clip-text text-transparent leading-tight drop-shadow-sm">
                                 KARİYERİNE ODAKLAN <br />
                                 VE <br />
                                 CV Nİ ANALİZ ET
@@ -720,9 +720,9 @@ function App() {
                         <div className="grid md:grid-cols-3 gap-6 pt-4">
                             <button
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
-                                className="group relative bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] flex flex-col justify-between min-h-[220px]"
+                                className="group relative bg-slate-900 border border-slate-800 hover:border-red-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.1)] flex flex-col justify-between min-h-[220px]"
                             >
-                                <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 text-2xl mb-4">🎯</div>
+                                <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500 text-2xl mb-4">🎯</div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">İŞE UYUMUNU HESAPLA</h3>
                                     <p className="text-sm text-slate-400">LinkedIn veya kariyer sitelerindeki ilanlarla CV'nizi karşılaştırın.</p>
@@ -731,9 +731,9 @@ function App() {
 
                             <button
                                 onClick={() => { setActivePage('ats-check'); handleReset(); }}
-                                className="group relative bg-slate-900 border border-slate-800 hover:border-teal-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(20,184,166,0.1)] flex flex-col justify-between min-h-[220px]"
+                                className="group relative bg-slate-900 border border-slate-800 hover:border-orange-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(249,115,22,0.1)] flex flex-col justify-between min-h-[220px]"
                             >
-                                <div className="w-12 h-12 bg-teal-500/10 rounded-xl flex items-center justify-center text-teal-400 text-2xl mb-4">📊</div>
+                                <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 text-2xl mb-4">📊</div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">ATS SKORUNU ÖĞREN</h3>
                                     <p className="text-sm text-slate-400">CV'nizin biçimsel hatalarını ve genel ATS puanını analiz edin.</p>
@@ -742,9 +742,9 @@ function App() {
 
                             <button
                                 onClick={() => { setActivePage('ai-jobs'); handleReset(); }}
-                                className="group relative bg-slate-900 border border-slate-800 hover:border-indigo-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.1)] flex flex-col justify-between min-h-[220px]"
+                                className="group relative bg-slate-900 border border-slate-800 hover:border-amber-500/50 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,158,11,0.1)] flex flex-col justify-between min-h-[220px]"
                             >
-                                <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 text-2xl mb-4">✨</div>
+                                <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 text-2xl mb-4">✨</div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">GELİŞMİŞ İŞ BULMA MOTORU</h3>
                                     <p className="text-sm text-slate-400">Sizin için en uygun iş ilanı linklerini bulun ve eşleşmeleri anında görün.</p>
@@ -770,21 +770,21 @@ function App() {
                                         value={jobLink}
                                         onChange={e => setJobLink(e.target.value)}
                                         placeholder="Linkedin, Kariyer.net vb. ilan linkini yapıştırın"
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-orange-500 transition-colors"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
                                         <label className="text-sm font-semibold text-slate-300 block">İş Tanımı / Aranan Nitelikler</label>
-                                        <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">CORS Güvencesi</span>
+                                        <span className="text-[10px] bg-red-900/40 text-red-400 px-2 py-0.5 rounded font-mono border border-red-800/50">CORS Güvencesi</span>
                                     </div>
                                     <textarea
                                         value={jobDescription}
                                         onChange={e => setJobDescription(e.target.value)}
                                         placeholder="İlandaki teknik gereksinimleri doğrudan buraya yapıştırabilirsiniz..."
                                         rows="4"
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-emerald-500 transition-colors resize-none font-sans leading-relaxed"
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-orange-500 transition-colors resize-none font-sans leading-relaxed"
                                     />
                                 </div>
 
@@ -796,14 +796,14 @@ function App() {
                                         onDragLeave={handleDrag}
                                         onDrop={handleDrop}
                                         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-                                            dragActive ? 'border-emerald-500 bg-emerald-500/5' : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                                            dragActive ? 'border-orange-500 bg-orange-500/5' : 'border-slate-800 bg-slate-950 hover:border-slate-700'
                                         }`}
                                     >
                                         <input type="file" id="file-upload" accept=".pdf" onChange={handleFileChange} className="hidden" />
                                         <label htmlFor="file-upload" className="cursor-pointer space-y-3 block">
                                             <div className="text-4xl">📄</div>
                                             {selectedFile ? (
-                                                <p className="text-emerald-400 font-semibold text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
+                                                <p className="text-orange-400 font-semibold text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
                                             ) : (
                                                 <p className="text-slate-300 text-sm">Dosya seçin veya sürükleyip bırakın</p>
                                             )}
@@ -822,10 +822,10 @@ function App() {
                             )}
 
                             <div className="grid grid-cols-3 gap-4 pt-6">
-                                <button onClick={handleReset} className="bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-colors">
+                                <button onClick={handleReset} className="bg-slate-950 border border-red-800/50 hover:bg-red-950/40 text-red-500 font-semibold py-3 rounded-xl transition-colors">
                                     Sıfırla
                                 </button>
-                                <button onClick={handleCalculateMatch} disabled={isAnalyzing} className="col-span-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-bold py-3 rounded-xl transition-all disabled:opacity-50">
+                                <button onClick={handleCalculateMatch} disabled={isAnalyzing} className="col-span-2 bg-gradient-to-r from-red-700 via-orange-600 to-orange-500 hover:from-red-600 hover:via-orange-500 hover:to-orange-400 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-orange-500/20">
                                     {isAnalyzing ? "Uyum Hesaplanıyor..." : "Uyumu Hesapla"}
                                 </button>
                             </div>
@@ -836,7 +836,7 @@ function App() {
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
                                     {isAnalyzing ? (
                                         <>
-                                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-emerald-500"></div>
+                                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-orange-500"></div>
                                             <h3 className="text-lg font-bold text-slate-300">Yapay Zeka Çalışıyor</h3>
                                             <p className="text-sm text-slate-500 max-w-xs">CV metni ayıklanıyor ve gereksinimlerle eşleştiriliyor...</p>
                                         </>
@@ -856,11 +856,11 @@ function App() {
                                         <div className="flex items-center gap-3">
                                             <button
                                                 onClick={() => window.print()}
-                                                className="print:hidden text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-indigo-500/20"
+                                                className="print:hidden text-xs bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-red-500/20"
                                             >
                                                 <span>📥</span> Raporu İndir
                                             </button>
-                                            <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">AI Active</span>
+                                            <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 rounded">AI Active</span>
                                         </div>
                                     </div>
 
@@ -937,14 +937,14 @@ function App() {
                                         onDragLeave={handleDrag}
                                         onDrop={handleDrop}
                                         className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all ${
-                                            dragActive ? 'border-teal-500 bg-teal-500/5' : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                                            dragActive ? 'border-orange-500 bg-orange-500/5' : 'border-slate-800 bg-slate-950 hover:border-slate-700'
                                         }`}
                                     >
                                         <input type="file" id="file-upload-ats" accept=".pdf" onChange={handleFileChange} className="hidden" />
                                         <label htmlFor="file-upload-ats" className="cursor-pointer space-y-3 block">
                                             <div className="text-4xl">📊</div>
                                             {selectedFile ? (
-                                                <p className="text-teal-400 font-semibold text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
+                                                <p className="text-orange-400 font-semibold text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
                                             ) : (
                                                 <p className="text-slate-300 text-sm">Analiz edilecek CV dosyasını seçin veya bırakın</p>
                                             )}
@@ -963,10 +963,10 @@ function App() {
                             )}
 
                             <div className="grid grid-cols-3 gap-4 pt-6">
-                                <button onClick={handleReset} className="bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold py-3 rounded-xl transition-colors">
+                                <button onClick={handleReset} className="bg-slate-950 border border-red-800/50 hover:bg-red-950/40 text-red-500 font-semibold py-3 rounded-xl transition-colors">
                                     Sıfırla
                                 </button>
-                                <button onClick={handleAtsCheck} disabled={isAnalyzing} className="col-span-2 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition-all disabled:opacity-50">
+                                <button onClick={handleAtsCheck} disabled={isAnalyzing} className="col-span-2 bg-gradient-to-r from-red-700 via-orange-600 to-orange-500 hover:from-red-600 hover:via-orange-500 hover:to-orange-400 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-orange-500/20">
                                     {isAnalyzing ? "Analiz Ediliyor..." : "ATS Skorunu Hesapla"}
                                 </button>
                             </div>
@@ -977,7 +977,7 @@ function App() {
                                 <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
                                     {isAnalyzing ? (
                                         <>
-                                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-teal-500"></div>
+                                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-orange-500"></div>
                                             <h3 className="text-lg font-bold text-slate-300">ATS Motoru Taraması Başladı</h3>
                                             <p className="text-sm text-slate-500 max-w-xs">Biçimsel hatalar, anahtar kelimeler ve yerleşim inceleniyor...</p>
                                         </>
@@ -997,11 +997,11 @@ function App() {
                                         <div className="flex items-center gap-3">
                                             <button
                                                 onClick={() => window.print()}
-                                                className="print:hidden text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-indigo-500/20"
+                                                className="print:hidden text-xs bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-red-500/20"
                                             >
                                                 <span>📥</span> Raporu İndir
                                             </button>
-                                            <span className="text-xs text-teal-400 bg-teal-400/10 px-2 py-1 rounded">ATS Guard Active</span>
+                                            <span className="text-xs text-orange-400 bg-orange-400/10 px-2 py-1 rounded">ATS Guard Active</span>
                                         </div>
                                     </div>
 
@@ -1041,18 +1041,18 @@ function App() {
                                             <h4 className="text-slate-300 font-bold border-b border-slate-800 pb-2">📂 CV Genel Karnesi</h4>
                                             <div className="grid grid-cols-2 gap-2 text-xs">
                                                 <span className="text-slate-400">Dosya Biçimi:</span>
-                                                <span className="text-emerald-400 text-right font-semibold">{atsResult.fileCheck}</span>
+                                                <span className="text-orange-400 text-right font-semibold">{atsResult.fileCheck}</span>
 
                                                 <span className="text-slate-400">İletişim Bilgileri:</span>
-                                                <span className="text-emerald-400 text-right font-semibold">{atsResult.contactCheck}</span>
+                                                <span className="text-orange-400 text-right font-semibold">{atsResult.contactCheck}</span>
 
                                                 <span className="text-slate-400">Deneyim & Proje Anlatımı:</span>
                                                 <span className="text-amber-400 text-right font-semibold">{atsResult.experienceCheck}</span>
                                             </div>
                                         </div>
 
-                                        <div className="bg-teal-500/5 border border-teal-500/10 p-5 rounded-xl space-y-3">
-                                            <h4 className="text-md font-bold text-teal-400 flex items-center gap-2">
+                                        <div className="bg-orange-500/5 border border-orange-500/10 p-5 rounded-xl space-y-3">
+                                            <h4 className="text-md font-bold text-orange-400 flex items-center gap-2">
                                                 <span>🚀</span> CV Geliştirme Önerileri
                                             </h4>
                                             <ul className="text-sm text-slate-200 space-y-2 list-disc pl-5 leading-relaxed">
