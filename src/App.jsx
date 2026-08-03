@@ -1,5 +1,4 @@
-import logo from './assets/logo.png';
-import React, { useState, useEffect } from 'react';
+,import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import Register from './Register';
 import Login from './Login';
@@ -561,9 +560,9 @@ function App() {
                         onClick={() => { setActivePage('home'); handleReset(); }}
                         className="text-2xl font-black tracking-wider cursor-pointer hover:opacity-80 transition-all flex items-center gap-2"
                     >
-                        {/* YENİ LOGO ENTEGRASYONU: logo.png içe aktarıldı */}
+                        {/* YENİ LOGO ENTEGRASYONU: public klasöründen logo çağrıldı */}
                         <img
-                            src={logo}
+                            src="/logo.png"
                             alt="CVSCORE Logo"
                             className="h-12 w-auto mix-blend-screen drop-shadow-[0_0_8px_rgba(234,88,12,0.5)]"
                         />
