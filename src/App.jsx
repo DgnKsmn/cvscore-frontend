@@ -707,8 +707,10 @@ function App() {
                 {activePage === 'home' && (
                     <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
-                            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-                                KARİYERİNE ODAKLAN VE CV Nİ İNCELE
+                            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent leading-tight">
+                                KARİYERİNE ODAKLAN <br />
+                                VE <br />
+                                CV Nİ ANALİZ ET
                             </h1>
                             <p className="text-slate-400 text-lg md:text-xl max-w-xl mx-auto">
                                 CV'nizi ATS standartlarına göre optimize edin ve iş ilanlarına uyumunuzu anında ölçün.
