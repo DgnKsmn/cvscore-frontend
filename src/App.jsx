@@ -1,4 +1,4 @@
-import logo from './assets/logo2.png';
+import logo from './assets/logo.png';
 import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import Register from './Register';
@@ -561,7 +561,7 @@ function App() {
                         onClick={() => { setActivePage('home'); handleReset(); }}
                         className="text-2xl font-black tracking-wider cursor-pointer hover:opacity-80 transition-all flex items-center gap-2"
                     >
-                        {/* PROBLEM 1 ÇÖZÜMÜ: mix-blend-screen olarak güncellendi. Eğer siyah arkaplan hala tam gitmezse logoyu PNG yapmak şart. */}
+                        {/* YENİ LOGO ENTEGRASYONU: logo.png içe aktarıldı */}
                         <img
                             src={logo}
                             alt="CVSCORE Logo"
