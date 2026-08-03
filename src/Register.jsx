@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import toast from 'react-hot-toast'; // Tost kütüphanesi eklendi
+import toast from 'react-hot-toast';
 
 const Register = ({ setActivePage }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    // success ve error stateleri kaldırıldı, yerine toast kullanıyoruz.
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,15 +18,12 @@ const Register = ({ setActivePage }) => {
             });
 
             if (response.ok) {
-                // Başarılı olduğunda şık bir bildirim göster
                 toast.success("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...");
 
-                // 2 saniye sonra otomatik olarak giriş ekranına yönlendir
                 setTimeout(() => {
                     if (setActivePage) setActivePage('login');
                 }, 2000);
             } else {
-                // Hata durumunda sağ üstten kırmızı bildirim
                 toast.error("Kayıt işlemi başarısız oldu. E-posta adresi kullanımda olabilir.");
             }
         } catch (err) {
@@ -39,51 +35,61 @@ const Register = ({ setActivePage }) => {
     };
 
     return (
-        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl w-full mt-10">
+        <div className="bg-[#160604]/90 backdrop-blur-md border border-red-900/30 p-8 rounded-2xl shadow-xl w-full max-w-md mx-auto mt-10">
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-slate-100">CVScore'a Kayıt Ol</h2>
-                <p className="text-slate-400 mt-2 text-sm">Hemen bir hesap oluşturun ve CV analizi yapmaya başlayın</p>
+                <p className="text-stone-400 mt-2 text-sm">Hemen bir hesap oluşturun ve CV analizi yapmaya başlayın</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold text-slate-300 block">E-posta Adresi</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                        placeholder="E-posta adresinizi girin"
-                    />
+                    <label className="text-sm font-semibold text-stone-300 block">E-posta Adresi</label>
+                    <div className="relative flex items-center">
+                        <svg className="w-5 h-5 absolute left-3.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="w-full bg-[#0a0302] border border-orange-900/40 rounded-xl pl-11 pr-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-orange-500 transition-colors shadow-inner"
+                            placeholder="E-posta adresinizi girin"
+                        />
+                    </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold text-slate-300 block">Şifre</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                        placeholder="••••••••"
-                    />
+                    <label className="text-sm font-semibold text-stone-300 block">Şifre</label>
+                    <div className="relative flex items-center">
+                        <svg className="w-5 h-5 absolute left-3.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="w-full bg-[#0a0302] border border-orange-900/40 rounded-xl pl-11 pr-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-orange-500 transition-colors shadow-inner"
+                            placeholder="••••••••"
+                        />
+                    </div>
                 </div>
 
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 mt-4"
+                    className="w-full bg-gradient-to-r from-red-700 via-orange-600 to-orange-500 hover:from-red-600 hover:via-orange-500 hover:to-orange-400 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-500/20 disabled:opacity-50 mt-4"
                 >
                     {isLoading ? 'Hesap Oluşturuluyor...' : 'Hesap Oluştur'}
                 </button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-slate-400">
+            <div className="mt-6 text-center text-sm text-stone-400">
                 Zaten hesabınız var mı?{' '}
                 <span
                     onClick={() => setActivePage && setActivePage('login')}
-                    className="text-blue-400 hover:text-blue-300 cursor-pointer font-semibold"
+                    className="text-orange-500 hover:text-orange-400 cursor-pointer font-semibold transition-colors"
                 >
                     Giriş Yapın
                 </span>
