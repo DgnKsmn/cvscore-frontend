@@ -626,7 +626,6 @@ function App() {
                             <h2 className="text-3xl font-bold text-slate-100 text-center">
                                 GELİŞMİŞ İŞ BULMA MOTORU
                             </h2>
-                            <p className="text-stone-400 text-sm">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
                         </div>
 
                         <div className="w-full relative bg-[#160604]/80 border border-orange-900/40 md:rounded-full rounded-2xl shadow-[0_0_20px_rgba(234,88,12,0.1)] focus-within:border-orange-500 transition-colors flex flex-col md:flex-row items-center p-2 backdrop-blur-sm gap-2 md:gap-0">
@@ -758,7 +757,7 @@ function App() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İŞe Uyumunu Hesapla</h3>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İş Uyumunu Hesapla</h3>
                                     <p className="text-sm text-stone-400">LinkedIn veya kariyer sitelerindeki ilanlarla CV'nizi karşılaştırın.</p>
                                 </div>
                             </button>
@@ -801,7 +800,7 @@ function App() {
                         <div className="print:hidden bg-[#160604]/90 backdrop-blur-md border border-red-900/30 p-6 rounded-2xl space-y-6 flex flex-col justify-between shadow-xl">
                             <div className="space-y-6">
                                 <div className="border-b border-red-900/40 pb-4">
-                                    <h2 className="text-2xl font-bold text-slate-100">İŞe Uyumunu Hesapla</h2>
+                                    <h2 className="text-2xl font-bold text-slate-100">İş Uyumunu Hesapla</h2>
                                     <p className="text-sm text-stone-400 mt-1">İlan detayları ile CV'nizi karşılaştırın</p>
                                 </div>
 
