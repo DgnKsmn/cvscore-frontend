@@ -3,6 +3,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import Register from './Register';
 import Login from './Login';
 import Premium from './Premium';
+import MobileMenu from './components/MobileMenu';
 import { Toaster, toast } from 'react-hot-toast';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -19,13 +20,13 @@ function App() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [showAuthWarning, setShowAuthWarning] = useState(false);
 
-    // Yapay Zeka İş Bulma Modülü İçin State'ler
+    // Gelişmiş İş Bulma Modülü İçin State'ler
     const [jobKeyword, setJobKeyword] = useState('');
     const [jobList, setJobList] = useState([]);
     const [isJobSearching, setIsJobSearching] = useState(false);
     const [hasSearchedJobs, setHasSearchedJobs] = useState(false);
 
-    // YENİ: Sayfalama (Pagination) state'leri
+    // Sayfalama (Pagination) state'leri
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMoreJobs, setHasMoreJobs] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -173,7 +174,7 @@ function App() {
 
             return finalResult;
         } catch (error) {
-            console.error("Yapay Zeka Analiz Hatası:", error);
+            console.error("Analiz Hatası:", error);
             toast.error("Sunucu ile bağlantı kurulamadı.");
             return null;
         }
@@ -212,7 +213,6 @@ function App() {
         setJobKeyword('');
         setJobList([]);
         setHasSearchedJobs(false);
-        // Yeni paginasyon sıfırlamaları
         setCurrentPage(1);
         setHasMoreJobs(true);
     };
@@ -269,10 +269,10 @@ function App() {
             });
             sonuclariVeritabaninaKaydet(selectedFile.name, jobLink, aiResult.score, 0, aiResult.missingSkills.join(" | "));
         } else {
-            toast.error("Yapay zeka analizi sırasında bir hata oluştu.");
+            toast.error("Analiz sırasında bir hata oluştu.");
             setAnalysisResult({
                 score: 0,
-                missingSkills: ["AI motoruna ulaşılamadı."],
+                missingSkills: ["Analiz motoruna ulaşılamadı."],
                 improvements: ["API bağlantınızı gözden geçirin."]
             });
         }
@@ -374,7 +374,6 @@ function App() {
         }
     };
 
-    // İLK ARAMA FONKSİYONU
     const handleJobSearch = async () => {
         if (!isLoggedIn) {
             setShowAuthWarning(true);
@@ -419,7 +418,6 @@ function App() {
             setJobList(data);
             setHasSearchedJobs(true);
 
-            // Gelen veri 10'dan azsa daha fazla ilan yok demektir
             if (data.length < 10) {
                 setHasMoreJobs(false);
             }
@@ -432,7 +430,6 @@ function App() {
         }
     };
 
-    // DAHA FAZLA GÖSTER FONKSİYONU
     const handleLoadMore = async () => {
         if (isLoadingMore || !hasMoreJobs) return;
         setIsLoadingMore(true);
@@ -462,17 +459,14 @@ function App() {
 
             const data = await response.json();
 
-            // Eğer yeni data geldiyse listeye ekle
             if (data && data.length > 0) {
                 setJobList(prev => [...prev, ...data]);
                 setCurrentPage(nextPage);
 
-                // Gelen veri yine 10'dan azsa daha fazla göster butonunu kaldır
                 if (data.length < 10) {
                     setHasMoreJobs(false);
                 }
             } else {
-                // Hiç veri dönmediyse buton tamamen kalksın
                 setHasMoreJobs(false);
             }
 
@@ -484,12 +478,11 @@ function App() {
         }
     };
 
-    // TAMAMEN KIRMIZI-TURUNCU PALETİNE GEÇİRİLMİŞ SKOR RENKLERİ
     const getScoreColorHex = score => {
-        if (score < 50) return '#b91c1c'; // Koyu Kırmızı (red-700)
-        if (score >= 50 && score < 70) return '#ea580c'; // Koyu Turuncu (orange-600)
-        if (score >= 70 && score < 90) return '#f97316'; // Turuncu (orange-500)
-        return '#fb923c'; // Açık Turuncu (orange-400)
+        if (score < 50) return '#b91c1c';
+        if (score >= 50 && score < 70) return '#ea580c';
+        if (score >= 70 && score < 90) return '#f97316';
+        return '#fb923c';
     };
 
     const radius = 54;
@@ -519,26 +512,20 @@ function App() {
 
     return (
         <div className="min-h-screen relative text-white flex flex-col justify-between font-sans selection:bg-orange-500/30">
-
-            {/* --- ÖZEL TASARIM ARKA PLAN (Görseldeki Halkalar) --- */}
             <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#0a0404]">
-                {/* Sol Kırmızı Yansıma ve Halkalar */}
                 <div className="absolute top-[10%] -left-[20%] w-[800px] h-[800px] rounded-full border border-red-700/20 bg-red-900/10 blur-[1px] flex items-center justify-center">
                     <div className="w-[600px] h-[600px] rounded-full border border-red-600/30 bg-red-800/10 flex items-center justify-center">
                         <div className="w-[400px] h-[400px] rounded-full border border-red-500/40 shadow-[0_0_120px_rgba(220,38,38,0.2)] bg-transparent"></div>
                     </div>
                 </div>
 
-                {/* Sağ Turuncu Yansıma ve Halkalar */}
                 <div className="absolute top-[20%] -right-[20%] w-[1000px] h-[1000px] rounded-full border border-orange-700/20 bg-orange-900/10 blur-[1px] flex items-center justify-center">
                     <div className="w-[750px] h-[750px] rounded-full border border-orange-600/30 bg-orange-800/10 flex items-center justify-center">
                         <div className="w-[500px] h-[500px] rounded-full border border-orange-500/40 shadow-[0_0_150px_rgba(234,88,12,0.15)] bg-transparent"></div>
                     </div>
                 </div>
             </div>
-            {/* ----------------------------------------------------- */}
 
-            {/* PROBLEM 2 ÇÖZÜMÜ: z-index [9999] yapıldı, bildirimler artık üst panelin altında kalmayacak */}
             <div className="print:hidden relative z-[9999]">
                 <Toaster
                     position="top-right"
@@ -560,7 +547,6 @@ function App() {
                         onClick={() => { setActivePage('home'); handleReset(); }}
                         className="text-2xl font-black tracking-wider cursor-pointer hover:opacity-80 transition-all flex items-center gap-2"
                     >
-                        {/* YENİ LOGO ENTEGRASYONU: public klasöründen logo çağrıldı */}
                         <img
                             src="/logo.png"
                             alt="CVSCORE Logo"
@@ -568,7 +554,8 @@ function App() {
                         />
                     </div>
 
-                    <div className="flex gap-3">
+                    {/* Desktop Menü (Masaüstü ekranlarda görünür, Mobilde gizli) */}
+                    <div className="hidden md:flex gap-3">
                         {!isLoggedIn ? (
                             <>
                                 {(activePage !== 'login' && activePage !== 'register') && (
@@ -598,6 +585,16 @@ function App() {
                             </button>
                         )}
                     </div>
+
+                    {/* Mobil Menü (Masaüstünde gizli, Mobilde görünür) */}
+                    <div className="md:hidden">
+                        <MobileMenu
+                            isLoggedIn={isLoggedIn}
+                            handleLogout={handleLogout}
+                            setActivePage={setActivePage}
+                            handleReset={handleReset}
+                        />
+                    </div>
                 </div>
             </header>
 
@@ -620,7 +617,6 @@ function App() {
                     </div>
                 )}
 
-                {/* YENİ TASARIM: YAPAY ZEKA İLE İŞ BUL (Arama Motoru Stili) */}
                 {activePage === 'ai-jobs' && (
                     <div className="w-full max-w-3xl mx-auto flex flex-col items-center space-y-8 print:block">
 
@@ -663,7 +659,6 @@ function App() {
                             </div>
                         )}
 
-                        {/* Sonuç Alanı */}
                         {hasSearchedJobs && (
                             <div className="w-full bg-[#160604]/90 border border-red-900/30 p-6 rounded-3xl flex flex-col transition-all shadow-xl backdrop-blur-md">
 
@@ -700,7 +695,6 @@ function App() {
                                             ))}
                                         </div>
 
-                                        {/* Daha Fazla Göster / Uyarı */}
                                         <div className="pt-6 pb-2 text-center">
                                             {hasMoreJobs ? (
                                                 <button
@@ -736,7 +730,6 @@ function App() {
                     </div>
                 )}
 
-                {/* DİĞER SAYFALAR (home, job-match, ats-check) */}
                 {activePage === 'home' && (
                     <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
@@ -755,7 +748,6 @@ function App() {
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
                                 className="group relative bg-[#160604]/80 backdrop-blur-sm border border-red-900/30 hover:border-red-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] flex flex-col justify-between min-h-[220px]"
                             >
-                                {/* YENİ SVG İKON (Hedef Tahtası) */}
                                 <div className="w-12 h-12 bg-red-900/30 rounded-xl flex items-center justify-center text-red-500 mb-4 border border-red-500/20">
                                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 16a6 6 0 110-12 6 6 0 010 12zm0-9a3 3 0 100 6 3 3 0 000-6z"/>
@@ -771,7 +763,6 @@ function App() {
                                 onClick={() => { setActivePage('ats-check'); handleReset(); }}
                                 className="group relative bg-[#160604]/80 backdrop-blur-sm border border-orange-900/30 hover:border-orange-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(234,88,12,0.15)] flex flex-col justify-between min-h-[220px]"
                             >
-                                {/* YENİ SVG İKON (Grafik) */}
                                 <div className="w-12 h-12 bg-orange-900/30 rounded-xl flex items-center justify-center text-orange-600 mb-4 border border-orange-600/20">
                                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M4 16h4v4H4zm6-8h4v12h-4zm6-4h4v16h-4z"/>
@@ -787,7 +778,6 @@ function App() {
                                 onClick={() => { setActivePage('ai-jobs'); handleReset(); }}
                                 className="group relative bg-[#160604]/80 backdrop-blur-sm border border-orange-700/30 hover:border-orange-400/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(251,146,60,0.15)] flex flex-col justify-between min-h-[220px]"
                             >
-                                {/* YENİ SVG İKON (Yıldızlar) */}
                                 <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400 mb-4 border border-orange-400/20">
                                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.5-6.2 4.5 2.4-7.6L2 9.6h7.6z"/>
@@ -887,7 +877,7 @@ function App() {
                                     {isAnalyzing ? (
                                         <>
                                             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-orange-500"></div>
-                                            <h3 className="text-lg font-bold text-slate-200">Yapay Zeka Çalışıyor</h3>
+                                            <h3 className="text-lg font-bold text-slate-200">Analiz Motoru Çalışıyor</h3>
                                             <p className="text-sm text-stone-400 max-w-xs">CV metni ayıklanıyor ve gereksinimlerle eşleştiriliyor...</p>
                                         </>
                                     ) : (
@@ -912,7 +902,7 @@ function App() {
                                             >
                                                 <span>📥</span> Raporu İndir
                                             </button>
-                                            <span className="text-xs text-orange-400 bg-orange-900/30 px-2 py-1 rounded border border-orange-500/20">AI Active</span>
+                                            <span className="text-xs text-orange-400 bg-orange-900/30 px-2 py-1 rounded border border-orange-500/20">Analysis Active</span>
                                         </div>
                                     </div>
 
@@ -1125,7 +1115,7 @@ function App() {
             </main>
 
             <footer className="print:hidden border-t border-red-900/30 bg-[#0a0404]/90 backdrop-blur-md py-4 text-center text-xs text-stone-500 relative z-10">
-                © 2026 CVSCORE - Yapay Zeka Destekli CV Analiz Platformu
+                © 2026 CVSCORE - Gelişmiş CV Analiz Platformu
             </footer>
         </div>
     );
