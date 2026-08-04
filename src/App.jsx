@@ -626,25 +626,30 @@ function App() {
                                     <svg className="w-8 h-8 inline" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.5-6.2 4.5 2.4-7.6L2 9.6h7.6z"/></svg>
                                 </span> GELİŞMİŞ İŞ BULMA MOTORU
                             </h2>
-                            <p className="text-stone-400 text-sm">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
+                            <p className="text-stone-400 text-sm"></p>
                         </div>
 
-                        <div className="w-full relative bg-[#160604]/80 border border-orange-900/40 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.1)] focus-within:border-orange-500 transition-colors flex items-center p-2 backdrop-blur-sm">
-                            <div className="pl-4 text-2xl opacity-50 text-orange-500">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        {/* Arama Çubuğu - Responsive (Mobilde alt alta, PC'de yan yana) */}
+                        <div className="w-full relative bg-[#160604]/80 border border-orange-900/40 md:rounded-full rounded-2xl shadow-[0_0_20px_rgba(234,88,12,0.1)] focus-within:border-orange-500 transition-colors flex flex-col md:flex-row items-center p-2 backdrop-blur-sm gap-2 md:gap-0">
+
+                            <div className="flex w-full items-center pl-2 md:pl-4">
+                                <div className="text-2xl opacity-50 text-orange-500 shrink-0">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                                <input
+                                    type="text"
+                                    value={jobKeyword}
+                                    onChange={e => setJobKeyword(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleJobSearch()}
+                                    placeholder="Aradığınız Pozisyon (Örn: Java Developer)"
+                                    className="w-full bg-transparent border-none text-slate-200 px-3 md:px-4 py-3 focus:outline-none text-base md:text-lg"
+                                />
                             </div>
-                            <input
-                                type="text"
-                                value={jobKeyword}
-                                onChange={e => setJobKeyword(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleJobSearch()}
-                                placeholder="Aradığınız Pozisyon (Örn: Java Developer)"
-                                className="flex-grow bg-transparent border-none text-slate-200 px-4 py-3 focus:outline-none text-lg"
-                            />
+
                             <button
                                 onClick={handleJobSearch}
                                 disabled={isJobSearching}
-                                className="bg-gradient-to-r from-red-700 via-orange-600 to-orange-500 hover:from-red-600 hover:via-orange-500 hover:to-orange-400 text-white font-bold py-3 px-8 rounded-full transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-orange-500/20"
+                                className="w-full md:w-auto shrink-0 bg-gradient-to-r from-red-700 via-orange-600 to-orange-500 hover:from-red-600 hover:via-orange-500 hover:to-orange-400 text-white font-bold py-3 px-8 rounded-xl md:rounded-full transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
                             >
                                 {isJobSearching ? "Aranıyor..." : "İlan Bul"}
                             </button>
@@ -743,7 +748,8 @@ function App() {
                             </p>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-6 pt-4">
+                        {/* DEĞİŞİKLİK BURADA: Mobilde gizlendi (hidden), sadece PC'de görünür (md:grid) */}
+                        <div className="hidden md:grid md:grid-cols-3 gap-6 pt-4">
                             <button
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
                                 className="group relative bg-[#160604]/80 backdrop-blur-sm border border-red-900/30 hover:border-red-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] flex flex-col justify-between min-h-[220px]"
@@ -754,7 +760,7 @@ function App() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İŞe Uyumunu Hesapla</h3>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İş Uyumunu Hesapla</h3>
                                     <p className="text-sm text-stone-400">LinkedIn veya kariyer sitelerindeki ilanlarla CV'nizi karşılaştırın.</p>
                                 </div>
                             </button>
@@ -797,7 +803,7 @@ function App() {
                         <div className="print:hidden bg-[#160604]/90 backdrop-blur-md border border-red-900/30 p-6 rounded-2xl space-y-6 flex flex-col justify-between shadow-xl">
                             <div className="space-y-6">
                                 <div className="border-b border-red-900/40 pb-4">
-                                    <h2 className="text-2xl font-bold text-slate-100">İŞe Uyumunu Hesapla</h2>
+                                    <h2 className="text-2xl font-bold text-slate-100">İş Uyumunu Hesapla</h2>
                                     <p className="text-sm text-stone-400 mt-1">İlan detayları ile CV'nizi karşılaştırın</p>
                                 </div>
 
