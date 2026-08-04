@@ -511,7 +511,10 @@ function App() {
     };
 
     return (
-        <div className="min-h-screen relative text-white flex flex-col justify-between font-sans selection:bg-orange-500/30">
+        <div className={`relative text-white flex flex-col justify-between font-sans selection:bg-orange-500/30 ${
+            activePage === 'home' ? 'h-screen overflow-hidden md:h-auto md:min-h-screen md:overflow-auto' : 'min-h-screen'
+        }`}>
+            {/* MOBİL ANA EKRANDA SCROLL'U KİLİTLEYEN DÜZENLEME BURADA */}
             <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#0a0404]">
                 <div className="absolute top-[10%] -left-[20%] w-[800px] h-[800px] rounded-full border border-red-700/20 bg-red-900/10 blur-[1px] flex items-center justify-center">
                     <div className="w-[600px] h-[600px] rounded-full border border-red-600/30 bg-red-800/10 flex items-center justify-center">
@@ -554,7 +557,6 @@ function App() {
                         />
                     </div>
 
-                    {/* Desktop Menü (Masaüstü ekranlarda görünür, Mobilde gizli) */}
                     <div className="hidden md:flex gap-3">
                         {!isLoggedIn ? (
                             <>
@@ -586,7 +588,6 @@ function App() {
                         )}
                     </div>
 
-                    {/* Mobil Menü (Masaüstünde gizli, Mobilde görünür) */}
                     <div className="md:hidden">
                         <MobileMenu
                             isLoggedIn={isLoggedIn}
@@ -621,15 +622,13 @@ function App() {
                     <div className="w-full max-w-3xl mx-auto flex flex-col items-center space-y-8 print:block">
 
                         <div className="text-center space-y-2 w-full mt-4">
-                            <h2 className="text-3xl font-bold text-slate-100 flex items-center justify-center gap-3">
-                                <span className="text-orange-500">
-                                    <svg className="w-8 h-8 inline" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.5-6.2 4.5 2.4-7.6L2 9.6h7.6z"/></svg>
-                                </span> GELİŞMİŞ İŞ BULMA MOTORU
+                            {/* YILDIZ KALDIRILDI VE ORTALANDI */}
+                            <h2 className="text-3xl font-bold text-slate-100 text-center">
+                                GELİŞMİŞ İŞ BULMA MOTORU
                             </h2>
-                            <p className="text-stone-400 text-sm"></p>
+                            <p className="text-stone-400 text-sm">Sıfır halüsinasyon, %100 çalışan ve doğrulanmış gerçek LinkedIn ilanları.</p>
                         </div>
 
-                        {/* Arama Çubuğu - Responsive (Mobilde alt alta, PC'de yan yana) */}
                         <div className="w-full relative bg-[#160604]/80 border border-orange-900/40 md:rounded-full rounded-2xl shadow-[0_0_20px_rgba(234,88,12,0.1)] focus-within:border-orange-500 transition-colors flex flex-col md:flex-row items-center p-2 backdrop-blur-sm gap-2 md:gap-0">
 
                             <div className="flex w-full items-center pl-2 md:pl-4">
@@ -748,7 +747,6 @@ function App() {
                             </p>
                         </div>
 
-                        {/* DEĞİŞİKLİK BURADA: Mobilde gizlendi (hidden), sadece PC'de görünür (md:grid) */}
                         <div className="hidden md:grid md:grid-cols-3 gap-6 pt-4">
                             <button
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
@@ -760,7 +758,7 @@ function App() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İş Uyumunu Hesapla</h3>
+                                    <h3 className="text-xl font-bold text-slate-100 mb-2">İŞe Uyumunu Hesapla</h3>
                                     <p className="text-sm text-stone-400">LinkedIn veya kariyer sitelerindeki ilanlarla CV'nizi karşılaştırın.</p>
                                 </div>
                             </button>
@@ -803,7 +801,7 @@ function App() {
                         <div className="print:hidden bg-[#160604]/90 backdrop-blur-md border border-red-900/30 p-6 rounded-2xl space-y-6 flex flex-col justify-between shadow-xl">
                             <div className="space-y-6">
                                 <div className="border-b border-red-900/40 pb-4">
-                                    <h2 className="text-2xl font-bold text-slate-100">İş Uyumunu Hesapla</h2>
+                                    <h2 className="text-2xl font-bold text-slate-100">İŞe Uyumunu Hesapla</h2>
                                     <p className="text-sm text-stone-400 mt-1">İlan detayları ile CV'nizi karşılaştırın</p>
                                 </div>
 
