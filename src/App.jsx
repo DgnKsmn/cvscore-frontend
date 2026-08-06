@@ -20,17 +20,6 @@ function App() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [showAuthWarning, setShowAuthWarning] = useState(false);
 
-    // Gelişmiş İş Bulma Modülü İçin State'ler
-    const [jobKeyword, setJobKeyword] = useState('');
-    const [jobList, setJobList] = useState([]);
-    const [isJobSearching, setIsJobSearching] = useState(false);
-    const [hasSearchedJobs, setHasSearchedJobs] = useState(false);
-
-    // Sayfalama (Pagination) state'leri
-    const [currentPage, setCurrentPage] = useState(1);
-    const [hasMoreJobs, setHasMoreJobs] = useState(true);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-
     const [analysisResult, setAnalysisResult] = useState({
         score: 0,
         missingSkills: [],
@@ -210,11 +199,6 @@ function App() {
         setSelectedFile(null);
         setShowResults(false);
         setShowAuthWarning(false);
-        setJobKeyword('');
-        setJobList([]);
-        setHasSearchedJobs(false);
-        setCurrentPage(1);
-        setHasMoreJobs(true);
     };
 
     const handleCalculateMatch = async () => {
@@ -374,110 +358,6 @@ function App() {
         }
     };
 
-    const handleJobSearch = async () => {
-        if (!isLoggedIn) {
-            setShowAuthWarning(true);
-            toast.error("Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.");
-            return;
-        }
-        setShowAuthWarning(false);
-
-        if (!jobKeyword.trim()) {
-            toast.error("Lütfen aranacak hedef pozisyonu girin.");
-            return;
-        }
-
-        setIsJobSearching(true);
-        setHasSearchedJobs(false);
-        setJobList([]);
-        setCurrentPage(1);
-        setHasMoreJobs(true);
-
-        try {
-            const token = localStorage.getItem('cvscore_jwt');
-            const safeQuery = encodeURIComponent(jobKeyword);
-            const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${safeQuery}&page=1`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
-            if (response.status === 403) {
-                toast.error("Oturumunuz süresi dolmuş veya geçersiz. Lütfen tekrar giriş yapın.");
-                setActivePage('login');
-                setIsJobSearching(false);
-                return;
-            }
-
-            if (!response.ok) {
-                throw new Error("İlanlar çekilirken sunucu kaynaklı bir hata oluştu.");
-            }
-
-            const data = await response.json();
-            setJobList(data);
-            setHasSearchedJobs(true);
-
-            if (data.length < 10) {
-                setHasMoreJobs(false);
-            }
-
-        } catch (error) {
-            console.error("İlan Arama Hatası:", error);
-            toast.error(error.message || "İlanlar getirilirken bir sorun oluştu.");
-        } finally {
-            setIsJobSearching(false);
-        }
-    };
-
-    const handleLoadMore = async () => {
-        if (isLoadingMore || !hasMoreJobs) return;
-        setIsLoadingMore(true);
-
-        const nextPage = currentPage + 1;
-
-        try {
-            const token = localStorage.getItem('cvscore_jwt');
-            const safeQuery = encodeURIComponent(jobKeyword);
-            const response = await fetch(`https://cvscore-backend-production.up.railway.app/api/jobs/search?query=${safeQuery}&page=${nextPage}`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
-            if (response.status === 403) {
-                toast.error("Oturumunuz süresi dolmuş veya geçersiz. Lütfen tekrar giriş yapın.");
-                setActivePage('login');
-                setIsLoadingMore(false);
-                return;
-            }
-
-            if (!response.ok) {
-                throw new Error("İlanlar çekilirken sunucu kaynaklı bir hata oluştu.");
-            }
-
-            const data = await response.json();
-
-            if (data && data.length > 0) {
-                setJobList(prev => [...prev, ...data]);
-                setCurrentPage(nextPage);
-
-                if (data.length < 10) {
-                    setHasMoreJobs(false);
-                }
-            } else {
-                setHasMoreJobs(false);
-            }
-
-        } catch (error) {
-            console.error("Daha fazla ilan çekilirken hata:", error);
-            toast.error("Yeni ilanlar getirilirken bir sorun oluştu.");
-        } finally {
-            setIsLoadingMore(false);
-        }
-    };
-
     const getScoreColorHex = score => {
         if (score < 50) return '#b91c1c';
         if (score >= 50 && score < 70) return '#ea580c';
@@ -514,7 +394,6 @@ function App() {
         <div className={`relative text-white flex flex-col justify-between font-sans selection:bg-orange-500/30 ${
             activePage === 'home' ? 'h-screen overflow-hidden md:h-auto md:min-h-screen md:overflow-auto' : 'min-h-screen'
         }`}>
-            {/* MOBİL ANA EKRANDA SCROLL'U KİLİTLEYEN DÜZENLEME BURADA */}
             <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#0a0404]">
                 <div className="absolute top-[10%] -left-[20%] w-[800px] h-[800px] rounded-full border border-red-700/20 bg-red-900/10 blur-[1px] flex items-center justify-center">
                     <div className="w-[600px] h-[600px] rounded-full border border-red-600/30 bg-red-800/10 flex items-center justify-center">
@@ -618,121 +497,6 @@ function App() {
                     </div>
                 )}
 
-                {activePage === 'ai-jobs' && (
-                    <div className="w-full max-w-3xl mx-auto flex flex-col items-center space-y-8 print:block">
-
-                        <div className="text-center space-y-2 w-full mt-4">
-                            {/* YILDIZ KALDIRILDI VE ORTALANDI */}
-                            <h2 className="text-3xl font-bold text-slate-100 text-center">
-                                GELİŞMİŞ İŞ BULMA MOTORU
-                            </h2>
-                        </div>
-
-                        <div className="w-full relative bg-[#160604]/80 border border-orange-900/40 md:rounded-full rounded-2xl shadow-[0_0_20px_rgba(234,88,12,0.1)] focus-within:border-orange-500 transition-colors flex flex-col md:flex-row items-center p-2 backdrop-blur-sm gap-2 md:gap-0">
-
-                            <div className="flex w-full items-center pl-2 md:pl-4">
-                                <div className="text-2xl opacity-50 text-orange-500 shrink-0">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                </div>
-                                <input
-                                    type="text"
-                                    value={jobKeyword}
-                                    onChange={e => setJobKeyword(e.target.value)}
-                                    onKeyDown={e => e.key === 'Enter' && handleJobSearch()}
-                                    placeholder="Aradığınız Pozisyon (Örn: Java Developer)"
-                                    className="w-full bg-transparent border-none text-slate-200 px-3 md:px-4 py-3 focus:outline-none text-base md:text-lg"
-                                />
-                            </div>
-
-                            <button
-                                onClick={handleJobSearch}
-                                disabled={isJobSearching}
-                                className="w-full md:w-auto shrink-0 bg-gradient-to-r from-red-700 via-orange-600 to-orange-500 hover:from-red-600 hover:via-orange-500 hover:to-orange-400 text-white font-bold py-3 px-8 rounded-xl md:rounded-full transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
-                            >
-                                {isJobSearching ? "Aranıyor..." : "İlan Bul"}
-                            </button>
-                        </div>
-
-                        {!isLoggedIn && showAuthWarning && (
-                            <div
-                                onClick={() => setActivePage('login')}
-                                className="bg-red-900/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl w-full text-center text-sm font-medium cursor-pointer hover:bg-red-900/40 transition-colors backdrop-blur-sm"
-                            >
-                                Henüz giriş yapmadınız. Lütfen öncelikle Giriş Yapın veya Kaydolun.
-                            </div>
-                        )}
-
-                        {hasSearchedJobs && (
-                            <div className="w-full bg-[#160604]/90 border border-red-900/30 p-6 rounded-3xl flex flex-col transition-all shadow-xl backdrop-blur-md">
-
-                                {isJobSearching ? (
-                                    <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-orange-500"></div>
-                                        <h3 className="text-lg font-bold text-slate-200">İlanlar Taranıyor</h3>
-                                        <p className="text-sm text-stone-400 max-w-xs">En uygun gerçek ilanlar filtreleniyor...</p>
-                                    </div>
-                                ) : jobList.length > 0 ? (
-                                    <div className="space-y-4">
-                                        <h3 className="text-lg font-bold text-slate-100 px-2 pb-2 border-b border-red-900/30">
-                                            Bulunan İlanlar <span className="text-orange-500">({jobList.length})</span>
-                                        </h3>
-
-                                        <div className="space-y-3">
-                                            {jobList.map((link, index) => (
-                                                <a
-                                                    key={index}
-                                                    href={link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center justify-between p-4 bg-[#0a0302] border border-orange-900/20 rounded-xl hover:border-orange-500/50 hover:bg-[#1f0a07] transition-all group shadow-sm"
-                                                >
-                                                    <span className="font-medium text-stone-300 group-hover:text-white flex items-center gap-3 text-sm truncate pr-4">
-                                                        <span className="text-orange-500 shrink-0">
-                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                                                        </span> LinkedIn İlanı {index + 1}
-                                                    </span>
-                                                    <span className="text-orange-400 bg-orange-900/20 px-4 py-1.5 rounded-lg font-bold text-xs shrink-0 group-hover:bg-orange-500 group-hover:text-white transition-colors border border-orange-900/50">
-                                                        İlana Git ↗
-                                                    </span>
-                                                </a>
-                                            ))}
-                                        </div>
-
-                                        <div className="pt-6 pb-2 text-center">
-                                            {hasMoreJobs ? (
-                                                <button
-                                                    onClick={handleLoadMore}
-                                                    disabled={isLoadingMore}
-                                                    className="bg-[#0a0302] hover:bg-[#1f0a07] border border-orange-900/40 text-stone-300 px-6 py-2.5 rounded-full transition-all font-semibold disabled:opacity-50 flex items-center justify-center mx-auto gap-2"
-                                                >
-                                                    {isLoadingMore ? (
-                                                        <><div className="animate-spin rounded-full h-4 w-4 border-t-2 border-stone-300"></div> Yükleniyor...</>
-                                                    ) : "Daha Fazla Göster ↓"}
-                                                </button>
-                                            ) : (
-                                                <div className="mt-4 p-4 bg-[#0a0302] border border-orange-900/30 rounded-xl text-stone-400 text-sm font-bold uppercase tracking-wider">
-                                                    MAALESEF BAŞKA İLAN BULUNAMADI
-                                                </div>
-                                            )}
-                                        </div>
-
-                                    </div>
-                                ) : (
-                                    <div className="flex-grow flex flex-col items-center justify-center text-center space-y-4 py-12 opacity-70">
-                                        <div className="text-5xl opacity-50 text-orange-600">
-                                            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                        </div>
-                                        <h3 className="text-lg font-bold text-stone-300">İlan Bulunamadı</h3>
-                                        <p className="text-sm text-stone-500 max-w-sm">
-                                            Bu arama kriterine uygun aktif, tıklanabilir bir LinkedIn ilanı bulunamadı. Aramanızı daha genel tutarak tekrar deneyebilirsiniz.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                )}
-
                 {activePage === 'home' && (
                     <div className="max-w-4xl w-full text-center space-y-8 print:hidden">
                         <div className="space-y-4">
@@ -746,10 +510,10 @@ function App() {
                             </p>
                         </div>
 
-                        <div className="hidden md:grid md:grid-cols-3 gap-6 pt-4">
+                        <div className="hidden md:flex md:justify-center gap-6 pt-4">
                             <button
                                 onClick={() => { setActivePage('job-match'); handleReset(); }}
-                                className="group relative bg-[#160604]/80 backdrop-blur-sm border border-red-900/30 hover:border-red-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] flex flex-col justify-between min-h-[220px]"
+                                className="group relative w-full md:w-1/2 bg-[#160604]/80 backdrop-blur-sm border border-red-900/30 hover:border-red-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] flex flex-col justify-between min-h-[220px]"
                             >
                                 <div className="w-12 h-12 bg-red-900/30 rounded-xl flex items-center justify-center text-red-500 mb-4 border border-red-500/20">
                                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -764,7 +528,7 @@ function App() {
 
                             <button
                                 onClick={() => { setActivePage('ats-check'); handleReset(); }}
-                                className="group relative bg-[#160604]/80 backdrop-blur-sm border border-orange-900/30 hover:border-orange-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(234,88,12,0.15)] flex flex-col justify-between min-h-[220px]"
+                                className="group relative w-full md:w-1/2 bg-[#160604]/80 backdrop-blur-sm border border-orange-900/30 hover:border-orange-500/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(234,88,12,0.15)] flex flex-col justify-between min-h-[220px]"
                             >
                                 <div className="w-12 h-12 bg-orange-900/30 rounded-xl flex items-center justify-center text-orange-600 mb-4 border border-orange-600/20">
                                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -774,21 +538,6 @@ function App() {
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">ATS Skorunu Öğren</h3>
                                     <p className="text-sm text-stone-400">CV'nizin biçimsel hatalarını ve genel ATS puanını analiz edin.</p>
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={() => { setActivePage('ai-jobs'); handleReset(); }}
-                                className="group relative bg-[#160604]/80 backdrop-blur-sm border border-orange-700/30 hover:border-orange-400/60 p-8 rounded-2xl text-left transition-all duration-300 hover:shadow-[0_0_30px_rgba(251,146,60,0.15)] flex flex-col justify-between min-h-[220px]"
-                            >
-                                <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400 mb-4 border border-orange-400/20">
-                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2l2.4 7.6H22l-6.2 4.5 2.4 7.6-6.2-4.5-6.2 4.5 2.4-7.6L2 9.6h7.6z"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-100 mb-2">Gelişmiş İş Bulma Motoru</h3>
-                                    <p className="text-sm text-stone-400">Sizin için en uygun iş ilanı linklerini bulun ve eşleşmeleri anında görün.</p>
                                 </div>
                             </button>
                         </div>
